@@ -1,8 +1,14 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@if (SignInManager.IsSignedIn(User))
+{
+    <a asp-controller="Tracks" asp-action="TopTracks" class="btn btn-primary">View Top Tracks</a>
+}
+else
+{
+    <p>Welcome to MeloStats! Please sign in to view your top tracks.</p>
+}
