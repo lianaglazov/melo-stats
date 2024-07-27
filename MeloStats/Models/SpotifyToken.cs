@@ -11,7 +11,6 @@ namespace MeloStats.Models
         public string AccessToken { get; set; }
         [Required(ErrorMessage = "Refresh Token is required.")]
         public string RefreshToken { get; set; }
-        public int? ExpiresIn { get; set; }
         public string? TokenType { get; set; }
         public DateTime CreatedAt { get; set; }
 

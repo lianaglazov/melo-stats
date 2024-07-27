@@ -1,0 +1,33 @@
+﻿@model List<ListeningHistory>
+
+@{
+    ViewData["Title"] = "Recent Tracks";
+}
+
+<h1>Recent Tracks</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Track Name</th>
+            <th>Artist</th>
+            <th>Album</th>
+            <th>Played At</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var history in Model)
+        {
+            var track = history.Track;
+            var album = track?.Album;
+            var artist = album?.Artist;
+
+            <tr>
+                <td>@track.Name</td>
+                <td>@artist?.Name</td>
+                <td>@album?.Name</td>
+                <td>@history.PlayedAt.ToString("g")</td> <!-- Format as needed -->
+            </tr>
+        }
+    </tbody>
+</table>

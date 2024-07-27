@@ -40,6 +40,9 @@ builder.Services.AddAuthentication(options =>
     options.Scope.Add("user-read-private");
     options.Scope.Add("user-read-email");
     options.Scope.Add("user-top-read");
+    options.Scope.Add("user-read-recently-played");
+    // to be added more scopes according to the needs of the app
+    // the scopes documentation: https://developer.spotify.com/documentation/web-api/concepts/scopes
     options.SaveTokens = true;
 
     options.Events.OnCreatingTicket = async context =>
@@ -62,10 +65,7 @@ builder.Services.AddAuthentication(options =>
             userToken.TokenType = "Bearer";
             userToken.CreatedAt = DateTime.UtcNow;
             user.SpotifyUserId = context.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
-            user.SpotifyTokens = new List<SpotifyToken>
-            {
-                userToken
-            };
+            user.SpotifyToken = userToken;
             await _userManager.UpdateAsync(user);
             await db.SaveChangesAsync();
         }
