@@ -87,25 +87,238 @@
 
         public async Task<List<TrackInfo>> GetTopTracksAsync(ApplicationUser user, int limit = 10, string timeRange = "medium_term")
         {
-            var endpoint = string.Format("v1/me/top/tracks?time_range={0}&limit={1}", timeRange, limit);
+            var endpoint = $"v1/me/top/tracks?time_range={timeRange}&limit={limit}";
+
             var response = await FetchWebApi(user, endpoint, HttpMethod.Get);
             var items = response["items"];
             var topTracks = new List<TrackInfo>();
 
             foreach (var item in items)
             {
-                var track = new TrackInfo
+                var spotifyTrackId = item["id"].ToString();
+                var trackName = item["name"].ToString();
+                var duration = int.Parse(item["duration_ms"].ToString()) / 1000; // Convert from milliseconds to seconds
+
+                var albumItem = item["album"];
+                var spotifyAlbumId = albumItem["id"].ToString();
+                var albumName = albumItem["name"].ToString();
+                var releaseDateString = albumItem["release_date"].ToString();
+
+                DateTime releaseDate;
+                // sometimes we don't have the exact release date - will set on the Jan 1st of that year
+                if (!DateTime.TryParseExact(releaseDateString, "yyyy-MM", null, System.Globalization.DateTimeStyles.None, out releaseDate))
                 {
-                    Name = item["name"].ToString(),
-                    Artist = string.Join(", ", item["artists"].Select(a => a["name"].ToString())),
-                    Album = item["album"]["name"].ToString()
-                };
-                topTracks.Add(track);
+                    if (int.TryParse(releaseDateString, out int year))
+                    {
+                        releaseDate = new DateTime(year, 1, 1);
+                    }
+                    else
+                    {
+                        releaseDate = DateTime.Parse(releaseDateString);
+                    }
+                }
+
+                var artistItem = item["artists"].First();
+                var spotifyArtistId = artistItem["id"].ToString();
+                var artistName = artistItem["name"].ToString();
+
+                // adding the artist of the track in the db if it doesn't exists
+                var artist = await _context.Artists.FirstOrDefaultAsync(a => a.SpotifyArtistId == spotifyArtistId);
+                if (artist == null)
+                {
+                    artist = new Artist
+                    {
+                        SpotifyArtistId = spotifyArtistId,
+                        Name = artistName,
+                        Tracks = new List<Track>(),
+                        Albums = new List<Album>()
+                    };
+                    _context.Artists.Add(artist);
+                    await _context.SaveChangesAsync();
+                }
+
+                // adding the albumin the db if it doesn't exists
+                var album = await _context.Albums.FirstOrDefaultAsync(a => a.SpotifyAlbumId == spotifyAlbumId);
+                if (album == null)
+                {
+                    album = new Album
+                    {
+                        SpotifyAlbumId = spotifyAlbumId,
+                        Name = albumName,
+                        ReleaseDate = releaseDate,
+                        ArtistId = artist.Id,
+                        Tracks = new List<Track>()
+                    };
+                    _context.Albums.Add(album);
+                    if (!artist.Albums.Any(t => t.SpotifyAlbumId == spotifyAlbumId))
+                    {
+                        artist.Albums.Add(album);
+                    }
+                    artist.Albums.Add(album);
+                    await _context.SaveChangesAsync();
+                }
+
+                // add the track to the db
+                var track = await _context.Tracks.FirstOrDefaultAsync(t => t.SpotifyTrackId == spotifyTrackId);
+                if (track == null)
+                {
+                    track = new Track
+                    {
+                        SpotifyTrackId = spotifyTrackId,
+                        Name = trackName,
+                        Duration = duration,
+                        ArtistId = artist.Id,
+                        AlbumId = album.Id
+                    };
+
+                    _context.Tracks.Add(track);
+                    await _context.SaveChangesAsync();
+                }
+                // add the track to the tracks list in album and artist tables
+
+                if (!album.Tracks.Any(t => t.SpotifyTrackId == spotifyTrackId))
+                {
+                    album.Tracks.Add(track);
+                }
+
+                if (!artist.Tracks.Any(t => t.SpotifyTrackId == spotifyTrackId))
+                {
+                    artist.Tracks.Add(track);
+                }
+
+                topTracks.Add(new TrackInfo
+                {
+                    Name = trackName,
+                    Artist = artistName,
+                    Album = albumName
+                });
             }
 
             return topTracks;
         }
-        
+
+        public async Task<List<ListeningHistory>> GetRecentlyPlayedTracksAsync(ApplicationUser user)
+        {
+            var endpoint = "v1/me/player/recently-played?limit=50";
+            var response = await FetchWebApi(user, endpoint, HttpMethod.Get);
+
+            var items = response["items"];
+            var recentTracks = new List<ListeningHistory>();
+
+            foreach (var item in items)
+            {
+                var spotifyTrackId = item["track"]["id"].ToString();
+                var trackName = item["track"]["name"].ToString();
+                var duration = int.Parse(item["track"]["duration_ms"].ToString()) / 1000;
+                var playedAt = DateTime.Parse(item["played_at"].ToString());
+
+                var albumItem = item["track"]["album"];
+                var spotifyAlbumId = albumItem["id"].ToString();
+                var albumName = albumItem["name"].ToString();
+                var releaseDateString = albumItem["release_date"].ToString();
+
+                DateTime releaseDate;
+                // sometimes we don't have the exact release date - will set on the Jan 1st of that year
+                if (!DateTime.TryParseExact(releaseDateString, "yyyy-MM", null, System.Globalization.DateTimeStyles.None, out releaseDate))
+                {
+                    if (int.TryParse(releaseDateString, out int year))
+                    {
+                        releaseDate = new DateTime(year, 1, 1);
+                    }
+                    else
+                    {
+                        releaseDate = DateTime.Parse(releaseDateString);
+                    }
+                }
+
+                var artistItem = item["track"]["artists"].First();
+                var spotifyArtistId = artistItem["id"].ToString();
+                var artistName = artistItem["name"].ToString();
+
+                // adding the artist of the track in the db if it doesn't exists
+                var artist = await _context.Artists.FirstOrDefaultAsync(a => a.SpotifyArtistId == spotifyArtistId);
+                if (artist == null)
+                {
+                    artist = new Artist
+                    {
+                        SpotifyArtistId = spotifyArtistId,
+                        Name = artistName,
+                        Tracks = new List<Track>(),
+                        Albums = new List<Album>()
+                    };
+                    _context.Artists.Add(artist);
+                    await _context.SaveChangesAsync();
+                }
+
+                // adding the albumin the db if it doesn't exists
+                var album = await _context.Albums.FirstOrDefaultAsync(a => a.SpotifyAlbumId == spotifyAlbumId);
+                if (album == null)
+                {
+                    album = new Album
+                    {
+                        SpotifyAlbumId = spotifyAlbumId,
+                        Name = albumName,
+                        ReleaseDate = releaseDate,
+                        ArtistId = artist.Id,
+                        Tracks = new List<Track>()
+                    };
+                    _context.Albums.Add(album);
+                    if (!artist.Albums.Any(t => t.SpotifyAlbumId == spotifyAlbumId))
+                    {
+                        artist.Albums.Add(album);
+                    }
+                    artist.Albums.Add(album);
+                    await _context.SaveChangesAsync();
+                }
+
+                // add the track to the db
+                var track = await _context.Tracks.FirstOrDefaultAsync(t => t.SpotifyTrackId == spotifyTrackId);
+                if (track == null)
+                {
+                    track = new Track
+                    {
+                        SpotifyTrackId = spotifyTrackId,
+                        Name = trackName,
+                        Duration = duration,
+                        ArtistId = artist.Id,
+                        AlbumId = album.Id
+                    };
+
+                    _context.Tracks.Add(track);
+                    _context.SaveChanges();
+                }
+                // add the track to the tracks list in album and artist tables
+
+                if (!album.Tracks.Any(t => t.SpotifyTrackId == spotifyTrackId))
+                {
+                    album.Tracks.Add(track);
+                }
+
+                if (!artist.Tracks.Any(t => t.SpotifyTrackId == spotifyTrackId))
+                {
+                    artist.Tracks.Add(track);
+                }
+
+                var listeningHistory = await _context.ListeningHistories.FirstOrDefaultAsync(lh => lh.PlayedAt == playedAt);
+                if (listeningHistory == null)
+                {
+                    listeningHistory = new ListeningHistory
+                    {
+                        UserId = user.Id,
+                        TrackId = track.Id,
+                        PlayedAt = playedAt
+                    };
+                    _context.ListeningHistories.Add(listeningHistory);
+                    _context.SaveChanges();
+
+                }
+                recentTracks.Add(listeningHistory);
+            }
+            return recentTracks;
+        }
+
+
+
         private async Task<string> RefreshAccessToken(string refreshToken)
         {
             try

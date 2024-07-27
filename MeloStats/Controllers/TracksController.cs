@@ -31,5 +31,23 @@ namespace MeloStats.Controllers
             // Pass topTracks to the view or return as needed
             return View(topTracks);
         }
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> RecentTracks()
+        {
+
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Users");
+            }
+
+            var recentTracks = await _spotifyApiService.GetRecentlyPlayedTracksAsync(user);
+
+            return View(recentTracks);
+        }
+
+
     }
 }
