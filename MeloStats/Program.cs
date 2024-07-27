@@ -59,7 +59,6 @@ builder.Services.AddAuthentication(options =>
 
             userToken.AccessToken = context.AccessToken;
             userToken.RefreshToken = context.RefreshToken;
-            userToken.ExpiresIn = 3600;
             userToken.TokenType = "Bearer";
             userToken.CreatedAt = DateTime.UtcNow;
             user.SpotifyUserId = context.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
