@@ -2,11 +2,16 @@
 
 <h1>Top Tracks</h1>
 
+@{
+    int index = 1;
+}
+
 @if (Model != null && Model.Any())
 {
     <table class="table">
         <thead>
             <tr>
+                <th></th>
                 <th>Name</th>
                 <th>Artist</th>
                 <th>Album</th>
@@ -16,10 +21,12 @@
             @foreach (var track in Model)
             {
                 <tr>
+                    <td>@index</td>
                     <td>@track.Name</td>
                     <td>@track.Artist</td>
                     <td>@track.Album</td>
                 </tr>
+                index++;
             }
         </tbody>
     </table>

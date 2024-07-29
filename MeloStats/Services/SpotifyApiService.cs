@@ -85,9 +85,9 @@
             return JObject.Parse(responseContent);
         }
 
-        public async Task<List<TrackInfo>> GetTopTracksAsync(ApplicationUser user, int limit = 10, string timeRange = "medium_term")
+        public async Task<List<TrackInfo>> GetTopTracksAsync(ApplicationUser user, string timeRange = "medium_term")
         {
-            var endpoint = $"v1/me/top/tracks?time_range={timeRange}&limit={limit}";
+            var endpoint = $"v1/me/top/tracks?time_range={timeRange}&limit=20";
 
             var response = await FetchWebApi(user, endpoint, HttpMethod.Get);
             var items = response["items"];
@@ -195,6 +195,50 @@
             }
 
             return topTracks;
+        }
+        public async Task<List<Artist>> GetTopArtistsAsync(ApplicationUser user, string timeRange = "medium_term")
+        {
+            var endpoint = $"v1/me/top/artists?time_range={timeRange}&limit=20";
+
+            var response = await FetchWebApi(user, endpoint, HttpMethod.Get);
+            var items = response["items"];
+            var topArtists = new List<Artist>();
+
+            foreach (var item in items)
+            {
+                var spotifyArtistId = item["id"].ToString();
+                var artistName = item["name"].ToString();
+                var imageUrl = item["images"].FirstOrDefault()?["url"]?.ToString();
+
+                // adding the artist of the track in the db if it doesn't exists
+                var artist = await _context.Artists.FirstOrDefaultAsync(a => a.SpotifyArtistId == spotifyArtistId);
+                if (artist == null)
+                {
+                    artist = new Artist
+                    {
+                        SpotifyArtistId = spotifyArtistId,
+                        Name = artistName,
+                        ImageUrl = imageUrl,
+                        Tracks = new List<Track>(),
+                        Albums = new List<Album>()
+                    };
+                    _context.Artists.Add(artist);
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    // update the image of an artist if it is different
+                    if (artist.ImageUrl != imageUrl)
+                    {
+                        artist.ImageUrl = imageUrl;
+                        _context.Artists.Update(artist);
+                    }
+                }
+                topArtists.Add(artist);
+
+            }
+
+            return topArtists;
         }
 
         public async Task<List<ListeningHistory>> GetRecentlyPlayedTracksAsync(ApplicationUser user)
