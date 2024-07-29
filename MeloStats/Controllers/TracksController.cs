@@ -28,7 +28,6 @@ namespace MeloStats.Controllers
 
             var topTracks = await _spotifyApiService.GetTopTracksAsync(user);
 
-            // Pass topTracks to the view or return as needed
             return View(topTracks);
         }
         [Authorize]
