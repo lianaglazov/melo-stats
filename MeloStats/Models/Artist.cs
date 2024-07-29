@@ -10,6 +10,7 @@ namespace MeloStats.Models
         public string SpotifyArtistId { get; set; }
         [Required(ErrorMessage = "The name of the artist is required.")]
         public string Name { get; set; }
+        public string? ImageUrl { get; set; }
         public virtual ICollection<Track>? Tracks { get; set; }
         public virtual ICollection<Album>? Albums { get; set; }
     }

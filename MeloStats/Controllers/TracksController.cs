@@ -18,7 +18,7 @@ namespace MeloStats.Controllers
         }
         [Authorize]
         [HttpGet]
-        public async Task<IActionResult> TopTracks()
+        public async Task<IActionResult> TopTracks(string timeRange = "medium_term")
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -26,7 +26,7 @@ namespace MeloStats.Controllers
                 return RedirectToAction("Login", "Users");
             }
 
-            var topTracks = await _spotifyApiService.GetTopTracksAsync(user);
+            var topTracks = await _spotifyApiService.GetTopTracksAsync(user, timeRange);
 
             return View(topTracks);
         }

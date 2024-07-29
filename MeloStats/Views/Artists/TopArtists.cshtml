@@ -1,0 +1,33 @@
+﻿@model List<MeloStats.Models.Artist>
+
+<h1 class="text-center">Top Artists</h1>
+<br />
+
+@{
+   int index = 1;
+}
+
+@if (Model != null && Model.Any())
+{
+   <div class="container">
+       <div class= "row">
+           @foreach (var artist in Model)
+            {
+                <div class="col-md-3 text-center mb-4">
+                    <div>
+                        <img src="@artist.ImageUrl" alt="@artist.Name" style="max-width: 200px; max-height: 200px;">
+                    </div>
+                    <div>
+                        <strong>@index. @artist.Name</strong>
+                    </div>
+                </div>
+                index++;
+            }
+       </div>
+   </div>
+}
+else
+{
+    <p>No top artists found.</p>
+}
+
