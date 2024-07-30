@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 
 namespace MeloStats.Models
 {
@@ -12,7 +13,7 @@ namespace MeloStats.Models
         public string Name { get; set; }
         [Required(ErrorMessage = "The Release date is required.")]
         public DateTime ReleaseDate { get; set; }
-
+        public string? ImageUrl { get; set; }
         public virtual int? ArtistId { get; set; }
         public virtual Artist? Artist { get; set; }
         public virtual ICollection<Track>? Tracks { get; set; }

@@ -85,24 +85,26 @@
             return JObject.Parse(responseContent);
         }
 
-        public async Task<List<TrackInfo>> GetTopTracksAsync(ApplicationUser user, string timeRange = "medium_term")
+        public async Task<List<Track>> GetTopTracksAsync(ApplicationUser user, string timeRange = "medium_term")
         {
             var endpoint = $"v1/me/top/tracks?time_range={timeRange}&limit=20";
 
             var response = await FetchWebApi(user, endpoint, HttpMethod.Get);
             var items = response["items"];
-            var topTracks = new List<TrackInfo>();
+            var topTracks = new List<Track>();
 
             foreach (var item in items)
             {
                 var spotifyTrackId = item["id"].ToString();
                 var trackName = item["name"].ToString();
                 var duration = int.Parse(item["duration_ms"].ToString()) / 1000; // Convert from milliseconds to seconds
+                var popularity = int.Parse(item["popularity"].ToString());
 
                 var albumItem = item["album"];
                 var spotifyAlbumId = albumItem["id"].ToString();
                 var albumName = albumItem["name"].ToString();
                 var releaseDateString = albumItem["release_date"].ToString();
+                var albumImg = albumItem["images"].FirstOrDefault()?["url"]?.ToString();
 
                 DateTime releaseDate;
                 // sometimes we don't have the exact release date - will set on the Jan 1st of that year
@@ -147,6 +149,7 @@
                         Name = albumName,
                         ReleaseDate = releaseDate,
                         ArtistId = artist.Id,
+                        ImageUrl = albumImg,
                         Tracks = new List<Track>()
                     };
                     _context.Albums.Add(album);
@@ -155,7 +158,18 @@
                         artist.Albums.Add(album);
                     }
                     artist.Albums.Add(album);
-                    await _context.SaveChangesAsync();
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    // update the image of an album if it is different
+                    if (album.ImageUrl != albumImg)
+                    {
+                        album.ImageUrl = albumImg;
+                        _context.Albums.Update(album);
+                        _context.SaveChanges();
+                    }
+                    
                 }
 
                 // add the track to the db
@@ -167,12 +181,23 @@
                         SpotifyTrackId = spotifyTrackId,
                         Name = trackName,
                         Duration = duration,
+                        Popularity = popularity,
                         ArtistId = artist.Id,
                         AlbumId = album.Id
                     };
 
                     _context.Tracks.Add(track);
                     await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    //check if the popularity updated
+                    if (track.Popularity != popularity)
+                    {
+                        track.Popularity = popularity;
+                        _context.Tracks.Update(track);
+                        _context.SaveChanges();
+                    }
                 }
                 // add the track to the tracks list in album and artist tables
 
@@ -186,12 +211,7 @@
                     artist.Tracks.Add(track);
                 }
 
-                topTracks.Add(new TrackInfo
-                {
-                    Name = trackName,
-                    Artist = artistName,
-                    Album = albumName
-                });
+                topTracks.Add(track);
             }
 
             return topTracks;
@@ -209,6 +229,7 @@
                 var spotifyArtistId = item["id"].ToString();
                 var artistName = item["name"].ToString();
                 var imageUrl = item["images"].FirstOrDefault()?["url"]?.ToString();
+                var popularity = int.Parse(item["popularity"].ToString());
 
                 // adding the artist of the track in the db if it doesn't exists
                 var artist = await _context.Artists.FirstOrDefaultAsync(a => a.SpotifyArtistId == spotifyArtistId);
@@ -223,7 +244,7 @@
                         Albums = new List<Album>()
                     };
                     _context.Artists.Add(artist);
-                    await _context.SaveChangesAsync();
+                    _context.SaveChanges();
                 }
                 else
                 {
@@ -232,6 +253,7 @@
                     {
                         artist.ImageUrl = imageUrl;
                         _context.Artists.Update(artist);
+                        _context.SaveChanges();
                     }
                 }
                 topArtists.Add(artist);
