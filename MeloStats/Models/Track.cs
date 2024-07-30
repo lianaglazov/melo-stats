@@ -14,6 +14,7 @@ namespace MeloStats.Models
         //the duration in seconds
         [Required(ErrorMessage = "Duration is required.")]
         public int Duration { get; set; }
+        public int Popularity { get; set; }
         public int? ArtistId { get; set; }
         public int? AlbumId { get; set; }
         public virtual Artist? Artist { get; set; }
