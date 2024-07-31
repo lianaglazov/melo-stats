@@ -86,13 +86,13 @@
             return JObject.Parse(responseContent);
         }
 
-        public async Task<List<TrackInfo>> GetTopTracksAsync(ApplicationUser user, string timeRange = "medium_term")
+        public async Task<List<Track>> GetTopTracksAsync(ApplicationUser user, string timeRange = "medium_term")
         {
             var endpoint = $"v1/me/top/tracks?time_range={timeRange}&limit=20";
 
             var response = await FetchWebApi(user, endpoint, HttpMethod.Get);
             var items = response["items"];
-            var topTracks = new List<TrackInfo>();
+            var topTracks = new List<Track>();
 
             foreach (var item in items)
             {
@@ -217,12 +217,7 @@
                     artist.Tracks.Add(track);
                 }
 
-                topTracks.Add(new TrackInfo
-                {
-                    Name = trackName,
-                    Artist = artistName,
-                    Album = albumName
-                });
+                topTracks.Add(track);
             }
 
             return topTracks;
