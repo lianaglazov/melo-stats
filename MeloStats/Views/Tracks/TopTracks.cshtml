@@ -22,9 +22,9 @@
             {
                 <tr>
                     <td>@index</td>
-                    <td>@track.Name</td>
-                    <td>@track.Artist</td>
-                    <td>@track.Album</td>
+                    <td><img src="@track.Album.ImageUrl" alt="@track.Album.Name" style="max-width: 40px; max-height: 40px;"> &nbsp @track.Name </td>
+                    <td>@track.Artist.Name</td>
+                    <td>@track.Album.Name</td>
                 </tr>
                 index++;
             }

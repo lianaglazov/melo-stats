@@ -16,8 +16,10 @@ namespace MeloStats.Models
         public int Duration { get; set; }
         public int? ArtistId { get; set; }
         public int? AlbumId { get; set; }
+        public int? FeatureId { get; set; }
         public virtual Artist? Artist { get; set; }
         public virtual Album? Album { get; set; }
+        public virtual Feature? Feature { get; set; }
         public virtual ICollection<ListeningHistory>? ListeningHistories { get; set; }
         public virtual ICollection<PlaylistTrack>? PlaylistTracks { get; set; }
     }

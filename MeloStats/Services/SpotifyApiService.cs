@@ -12,6 +12,7 @@
     using Newtonsoft.Json;
     using System.Text;
     using Azure.Core;
+    using MeloStats.Data.Migrations;
 
     public class SpotifyApiService
     {
@@ -122,19 +123,49 @@
                 var spotifyArtistId = artistItem["id"].ToString();
                 var artistName = artistItem["name"].ToString();
 
-                // adding the artist of the track in the db if it doesn't exists
+                // api-ul pt artisti este apelat doar in cazul in care nu avem toate informatiile in db
                 var artist = await _context.Artists.FirstOrDefaultAsync(a => a.SpotifyArtistId == spotifyArtistId);
-                if (artist == null)
+                if (artist == null || artist.Popularity == 0)
                 {
-                    artist = new Artist
+                    var artistEndpoint = $"v1/artists/{spotifyArtistId}";
+                    var artistResponse = await FetchWebApi(user, artistEndpoint, HttpMethod.Get);
+
+                    if (artistResponse == null)
                     {
-                        SpotifyArtistId = spotifyArtistId,
-                        Name = artistName,
-                        Tracks = new List<Track>(),
-                        Albums = new List<Album>()
-                    };
-                    _context.Artists.Add(artist);
-                    await _context.SaveChangesAsync();
+                        throw new Exception($"Failed to fetch artist details for artist ID {spotifyArtistId}.");
+                    }
+
+                    var artistPopularity = int.Parse(artistResponse["popularity"].ToString());
+                    var artistGenres = artistResponse["genres"].Select(g => g.ToString()).ToArray();
+                    var artistImg = artistResponse["images"].FirstOrDefault()?["url"]?.ToString();
+                    var genres = string.Join(", ", artistGenres);
+
+                    // Add artist to the database if not exists
+
+                    if (artist == null)
+                    {
+                        artist = new Artist
+                        {
+                            SpotifyArtistId = spotifyArtistId,
+                            Name = artistName,
+                            Popularity = artistPopularity,
+                            Genres = genres,
+                            ImageUrl = artistImg,
+                            Tracks = new List<Track>(),
+                            Albums = new List<Album>()
+                        };
+                        _context.Artists.Add(artist);
+                        await _context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        // update genres popularity and image
+                        artist.Genres = genres;
+                        artist.Popularity = artistPopularity;
+                        artist.ImageUrl = artistImg;
+                        _context.Artists.Update(artist);
+                        _context.SaveChanges();
+                    }
                 }
 
                 // adding the albumin the db if it doesn't exists
@@ -172,7 +203,7 @@
                     };
 
                     _context.Tracks.Add(track);
-                    await _context.SaveChangesAsync();
+                    _context.SaveChanges();
                 }
                 // add the track to the tracks list in album and artist tables
 
@@ -209,7 +240,9 @@
                 var spotifyArtistId = item["id"].ToString();
                 var artistName = item["name"].ToString();
                 var imageUrl = item["images"].FirstOrDefault()?["url"]?.ToString();
-
+                var popularity = int.Parse(item["popularity"].ToString());
+                var artistGenres = item["genres"].Select(g => g.ToString()).ToArray();
+                var genres = string.Join(", ", artistGenres);
                 // adding the artist of the track in the db if it doesn't exists
                 var artist = await _context.Artists.FirstOrDefaultAsync(a => a.SpotifyArtistId == spotifyArtistId);
                 if (artist == null)
@@ -219,6 +252,8 @@
                         SpotifyArtistId = spotifyArtistId,
                         Name = artistName,
                         ImageUrl = imageUrl,
+                        Popularity = popularity,
+                        Genres = genres,
                         Tracks = new List<Track>(),
                         Albums = new List<Album>()
                     };
@@ -227,12 +262,12 @@
                 }
                 else
                 {
-                    // update the image of an artist if it is different
-                    if (artist.ImageUrl != imageUrl)
-                    {
-                        artist.ImageUrl = imageUrl;
-                        _context.Artists.Update(artist);
-                    }
+                    // update the image, popularity and genres of an artist
+                    artist.Popularity = popularity;
+                    artist.Genres = genres;
+                    artist.ImageUrl = imageUrl;
+                    _context.Artists.Update(artist);
+                    _context.SaveChanges();
                 }
                 topArtists.Add(artist);
 
@@ -278,20 +313,49 @@
                 var artistItem = item["track"]["artists"].First();
                 var spotifyArtistId = artistItem["id"].ToString();
                 var artistName = artistItem["name"].ToString();
-
-                // adding the artist of the track in the db if it doesn't exists
                 var artist = await _context.Artists.FirstOrDefaultAsync(a => a.SpotifyArtistId == spotifyArtistId);
-                if (artist == null)
+                // calling the api for the artist only if have missing information in the db
+                if (artist == null || artist.Popularity == 0)
                 {
-                    artist = new Artist
+
+                    var artistEndpoint = $"v1/artists/{spotifyArtistId}";
+                    var artistResponse = await FetchWebApi(user, artistEndpoint, HttpMethod.Get);
+
+                    if (artistResponse == null)
                     {
-                        SpotifyArtistId = spotifyArtistId,
-                        Name = artistName,
-                        Tracks = new List<Track>(),
-                        Albums = new List<Album>()
-                    };
-                    _context.Artists.Add(artist);
-                    await _context.SaveChangesAsync();
+                        throw new Exception($"Failed to fetch artist details for artist ID {spotifyArtistId}.");
+                    }
+
+                    var artistPopularity = int.Parse(artistResponse["popularity"].ToString());
+                    var artistGenres = artistResponse["genres"].Select(g => g.ToString()).ToArray();
+                    var artistImg = artistResponse["images"].FirstOrDefault()?["url"]?.ToString();
+                    var genres = string.Join(", ", artistGenres);
+
+                    // Add artist to the database if not exists
+                    if (artist == null)
+                    {
+                        artist = new Artist
+                        {
+                            SpotifyArtistId = spotifyArtistId,
+                            Name = artistName,
+                            Popularity = artistPopularity,
+                            Genres = genres,
+                            ImageUrl = artistImg,
+                            Tracks = new List<Track>(),
+                            Albums = new List<Album>()
+                        };
+                        _context.Artists.Add(artist);
+                        await _context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        // update genres and popularity
+                        artist.Genres = genres;
+                        artist.Popularity = artistPopularity;
+                        artist.ImageUrl = artistImg;
+                        _context.Artists.Update(artist);
+                        _context.SaveChanges();
+                    }
                 }
 
                 // adding the albumin the db if it doesn't exists
@@ -359,6 +423,45 @@
                 recentTracks.Add(listeningHistory);
             }
             return recentTracks;
+        }
+
+        public async Task<Feature> GetTrackFeaturesAsync(int trackId)
+        {
+            var accessToken = await _authService.GetAccessTokenAsync();
+            var client = new HttpClient();
+            client.BaseAddress = new Uri(BaseUrl);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var track = await _context.Tracks.FirstOrDefaultAsync(t => t.Id == trackId);
+            if (track == null)
+            {
+                throw new Exception($"Track {trackId} not found.");
+            }
+            var response = await client.GetAsync($"audio-features/{track.SpotifyTrackId}");
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Failed to fetch track features. Status Code: {response.StatusCode}");
+            }
+
+            var responseBody = await response.Content.ReadAsStringAsync();
+            var json = JObject.Parse(responseBody);
+            var features = await _context.Features.FirstOrDefaultAsync(f => f.TrackId == trackId);
+            if (features == null)
+            {
+                features = new Feature
+                {
+                    Danceability = float.Parse(json["danceability"].ToString()),
+                    Energy = float.Parse(json["energy"].ToString()),
+                    Tempo = float.Parse(json["tempo"].ToString()),
+                    Valence = float.Parse(json["valence"].ToString()),
+                    Instrumentalness = float.Parse(json["instrumentalness"].ToString()),
+                    TrackId = trackId
+                };
+                _context.Features.Add(features);
+                _context.SaveChanges();
+            }
+
+            return features;
         }
 
 

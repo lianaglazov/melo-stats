@@ -18,6 +18,7 @@ namespace MeloStats.Data
         public DbSet<Album> Albums { get; set; }
         public DbSet<ListeningHistory> ListeningHistories { get; set; }
         public DbSet<PlaylistTrack> PlaylistTracks { get; set; }
+        public DbSet<Feature> Features { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -37,6 +38,11 @@ namespace MeloStats.Data
             .HasOne(pt => pt.Track)
             .WithMany(t => t.PlaylistTracks)
             .HasForeignKey(pt => pt.TrackId);
+
+            modelBuilder.Entity<Track>()
+                .HasOne(t => t.Feature)
+                .WithOne(f => f.Track)
+                .HasForeignKey<Feature>(f => f.TrackId);
         }
     }
 }

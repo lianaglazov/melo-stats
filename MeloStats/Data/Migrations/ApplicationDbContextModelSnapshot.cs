@@ -127,12 +127,19 @@ namespace MeloStats.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Genres")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Popularity")
+                        .HasColumnType("int");
 
                     b.Property<string>("SpotifyArtistId")
                         .IsRequired()
@@ -141,6 +148,41 @@ namespace MeloStats.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Artists");
+                });
+
+            modelBuilder.Entity("MeloStats.Models.Feature", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<float>("Danceability")
+                        .HasColumnType("real");
+
+                    b.Property<float>("Energy")
+                        .HasColumnType("real");
+
+                    b.Property<float>("Instrumentalness")
+                        .HasColumnType("real");
+
+                    b.Property<float>("Tempo")
+                        .HasColumnType("real");
+
+                    b.Property<int?>("TrackId")
+                        .HasColumnType("int");
+
+                    b.Property<float>("Valence")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TrackId")
+                        .IsUnique()
+                        .HasFilter("[TrackId] IS NOT NULL");
+
+                    b.ToTable("Features");
                 });
 
             modelBuilder.Entity("MeloStats.Models.ListeningHistory", b =>
@@ -265,6 +307,9 @@ namespace MeloStats.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("Duration")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("FeatureId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -430,6 +475,15 @@ namespace MeloStats.Data.Migrations
                     b.Navigation("Artist");
                 });
 
+            modelBuilder.Entity("MeloStats.Models.Feature", b =>
+                {
+                    b.HasOne("MeloStats.Models.Track", "Track")
+                        .WithOne("Feature")
+                        .HasForeignKey("MeloStats.Models.Feature", "TrackId");
+
+                    b.Navigation("Track");
+                });
+
             modelBuilder.Entity("MeloStats.Models.ListeningHistory", b =>
                 {
                     b.HasOne("MeloStats.Models.Track", "Track")
@@ -576,6 +630,8 @@ namespace MeloStats.Data.Migrations
 
             modelBuilder.Entity("MeloStats.Models.Track", b =>
                 {
+                    b.Navigation("Feature");
+
                     b.Navigation("ListeningHistories");
 
                     b.Navigation("PlaylistTracks");

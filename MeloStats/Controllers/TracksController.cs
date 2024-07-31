@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using MeloStats.Models;
+using MeloStats.Data.Migrations;
 
 namespace MeloStats.Controllers
 {
@@ -45,6 +46,19 @@ namespace MeloStats.Controllers
             var recentTracks = await _spotifyApiService.GetRecentlyPlayedTracksAsync(user);
 
             return View(recentTracks);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> TrackFeatures(int trackId)
+        {
+            
+            var features = await _spotifyApiService.GetTrackFeaturesAsync(trackId);
+            if (features == null)
+            {
+                return NotFound(); 
+            }
+            return View(features); // to be modified, it should not return the view
         }
 
 
