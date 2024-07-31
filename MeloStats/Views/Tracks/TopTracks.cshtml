@@ -1,4 +1,4 @@
-﻿@model List<MeloStats.Models.Track>
+﻿@model List<MeloStats.Services.TrackInfo>
 
 <h1>Top Tracks</h1>
 
@@ -22,7 +22,7 @@
             {
                 <tr>
                     <td>@index</td>
-                    <td><img src="@track.Album.ImageUrl" alt="@track.Album.Name" style="max-width: 40px; max-height: 40px;"> &nbsp @track.Name </td>
+                    <td><img src="@track.Album.ImageUrl" alt="@track.Album.Name" style="max-width: 40px; max-height: 40px;"> &nbsp @track.Name</td>
                     <td>@track.Artist.Name</td>
                     <td>@track.Album.Name</td>
                 </tr>

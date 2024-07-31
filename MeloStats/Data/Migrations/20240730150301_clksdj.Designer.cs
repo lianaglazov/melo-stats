@@ -4,6 +4,7 @@ using MeloStats.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MeloStats.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240730150301_clksdj")]
+    partial class clksdj
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,6 +42,9 @@ namespace MeloStats.Data.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Popularity")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("ReleaseDate")
                         .HasColumnType("datetime2");
@@ -130,10 +136,6 @@ namespace MeloStats.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Genres")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
 
@@ -151,41 +153,6 @@ namespace MeloStats.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Artists");
-                });
-
-            modelBuilder.Entity("MeloStats.Models.Feature", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<float>("Danceability")
-                        .HasColumnType("real");
-
-                    b.Property<float>("Energy")
-                        .HasColumnType("real");
-
-                    b.Property<float>("Instrumentalness")
-                        .HasColumnType("real");
-
-                    b.Property<float>("Tempo")
-                        .HasColumnType("real");
-
-                    b.Property<int?>("TrackId")
-                        .HasColumnType("int");
-
-                    b.Property<float>("Valence")
-                        .HasColumnType("real");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TrackId")
-                        .IsUnique()
-                        .HasFilter("[TrackId] IS NOT NULL");
-
-                    b.ToTable("Features");
                 });
 
             modelBuilder.Entity("MeloStats.Models.ListeningHistory", b =>
@@ -310,9 +277,6 @@ namespace MeloStats.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("Duration")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("FeatureId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -481,15 +445,6 @@ namespace MeloStats.Data.Migrations
                     b.Navigation("Artist");
                 });
 
-            modelBuilder.Entity("MeloStats.Models.Feature", b =>
-                {
-                    b.HasOne("MeloStats.Models.Track", "Track")
-                        .WithOne("Feature")
-                        .HasForeignKey("MeloStats.Models.Feature", "TrackId");
-
-                    b.Navigation("Track");
-                });
-
             modelBuilder.Entity("MeloStats.Models.ListeningHistory", b =>
                 {
                     b.HasOne("MeloStats.Models.Track", "Track")
@@ -636,8 +591,6 @@ namespace MeloStats.Data.Migrations
 
             modelBuilder.Entity("MeloStats.Models.Track", b =>
                 {
-                    b.Navigation("Feature");
-
                     b.Navigation("ListeningHistories");
 
                     b.Navigation("PlaylistTracks");
