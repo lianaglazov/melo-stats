@@ -42,6 +42,7 @@ builder.Services.AddAuthentication(options =>
     options.Scope.Add("user-top-read");
     options.Scope.Add("user-read-recently-played");
     options.Scope.Add("user-library-read");
+    options.Scope.Add("playlist-read-private");
     // to be added more scopes according to the needs of the app
     // the scopes documentation: https://developer.spotify.com/documentation/web-api/concepts/scopes
     options.SaveTokens = true;
