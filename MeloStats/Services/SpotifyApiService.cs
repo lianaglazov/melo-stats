@@ -13,6 +13,7 @@
     using System.Text;
     using Azure.Core;
     using MeloStats.Data.Migrations;
+    using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
     public class SpotifyApiService
     {
@@ -30,32 +31,6 @@
             _context = context;
             _configuration = configuration;
             _httpClientFactory = httpClientFactory;
-        }
-
-        public async Task<TrackInfo> GetTrackAsync(string trackId)
-        {
-            var accessToken = await _authService.GetAccessTokenAsync();
-
-            using (var client = new HttpClient())
-            {
-                client.BaseAddress = new Uri(BaseUrl);
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-                var response = await client.GetAsync($"tracks/{trackId}");
-                response.EnsureSuccessStatusCode();
-
-                var responseBody = await response.Content.ReadAsStringAsync();
-                var json = JObject.Parse(responseBody);
-
-                var trackInfo = new TrackInfo
-                {
-                    Name = json["name"].ToString(),
-                    Artist = json["artists"][0]["name"].ToString(),
-                    Album = json["album"]["name"].ToString()
-                };
-
-                return trackInfo;
-            }
         }
 
         private async Task<JObject> FetchWebApi(ApplicationUser user, string endpoint, HttpMethod method, object body = null)
