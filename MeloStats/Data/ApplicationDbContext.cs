@@ -24,20 +24,6 @@ namespace MeloStats.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // definire primary key compus
-            modelBuilder.Entity<PlaylistTrack>()
-           .HasKey(pt => new { pt.PlaylistId, pt.TrackId });
-
-            // definire relatii cu modelele Playlist si Track
-            modelBuilder.Entity<PlaylistTrack>()
-            .HasOne(pt => pt.Playlist)
-            .WithMany(p => p.PlaylistTracks)
-            .HasForeignKey(pt => pt.PlaylistId);
-
-            modelBuilder.Entity<PlaylistTrack>()
-            .HasOne(pt => pt.Track)
-            .WithMany(t => t.PlaylistTracks)
-            .HasForeignKey(pt => pt.TrackId);
 
             modelBuilder.Entity<Track>()
                 .HasOne(t => t.Feature)

@@ -11,7 +11,6 @@ namespace MeloStats.Models
         public string? ImageUrl { get; set; }
         public virtual SpotifyToken? SpotifyToken { get; set; }
         public virtual ICollection<ListeningHistory>? ListeningHistories { get; set; }
-        public virtual ICollection<Playlist>? Playlists { get; set; }
 
     }
 }
