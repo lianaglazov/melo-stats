@@ -12,7 +12,7 @@ namespace MeloStats.Models
         [Required(ErrorMessage = "Refresh Token is required.")]
         public string RefreshToken { get; set; }
         public string? TokenType { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTime Expires { get; set; }
 
         public ApplicationUser? User { get; set; }
     }

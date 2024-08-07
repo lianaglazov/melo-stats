@@ -39,8 +39,11 @@
             var request = new HttpRequestMessage(method, $"https://api.spotify.com/{endpoint}");
 
             var userToken = await _context.SpotifyTokens.FirstOrDefaultAsync(t => t.UserId == user.Id);
-
-            var accessToken = await RefreshAccessToken(userToken.RefreshToken);
+            var accessToken = userToken.AccessToken;
+            if (userToken.Expires < DateTime.UtcNow)
+            {
+                accessToken = await RefreshAccessToken(userToken.RefreshToken);
+            }
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
             if (body != null)
@@ -285,6 +288,7 @@
                 var trackName = item["track"]["name"].ToString();
                 var duration = int.Parse(item["track"]["duration_ms"].ToString()) / 1000;
                 var playedAt = DateTime.Parse(item["played_at"].ToString());
+                var popularity = int.Parse(item["track"]["popularity"].ToString());
 
                 var albumItem = item["track"]["album"];
                 var spotifyAlbumId = albumItem["id"].ToString();
@@ -383,6 +387,7 @@
                         SpotifyTrackId = spotifyTrackId,
                         Name = trackName,
                         Duration = duration,
+                        Popularity = popularity,
                         ArtistId = artist.Id,
                         AlbumId = album.Id
                     };
@@ -496,7 +501,7 @@
                         if (userToken != null)
                         {
                             userToken.AccessToken = accessToken;
-                            userToken.CreatedAt = DateTime.UtcNow;
+                            userToken.Expires = DateTime.UtcNow.AddHours(1);
                             _context.SpotifyTokens.Update(userToken);
                             _context.SaveChanges();
                         }
@@ -517,15 +522,6 @@
         }
 
 
-    }
-
-
-
-    public class TrackInfo
-    {
-        public string Name { get; set; }
-        public string Artist { get; set; }
-        public string Album { get; set; }
     }
 
 }

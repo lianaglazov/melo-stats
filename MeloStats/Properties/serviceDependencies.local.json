@@ -1,18 +1,25 @@
 {
   "dependencies": {
+    "mssql3": {
+      "serviceConnectorResourceId": "",
+      "secretStore": null,
+      "resourceId": null,
+      "type": "mssql.local",
+      "connectionId": "ConnectionStrings:SpotifyDB"
+    },
+    "mssql2": {
+      "serviceConnectorResourceId": "",
+      "secretStore": null,
+      "resourceId": null,
+      "type": "mssql.local",
+      "connectionId": "SpotifyDB"
+    },
     "mssql1": {
       "serviceConnectorResourceId": "",
       "secretStore": null,
       "resourceId": null,
       "type": "mssql.local",
       "connectionId": "ConnectionStrings:DefaultConnection"
-    },
-    "mssql2": {
-      "serviceConnectorResourceId": "",
-      "secretStore": null,
-      "type": "mssql.local",
-      "connectionId": "SpotifyDB",
-      "dynamicId": null
     }
   }
 }

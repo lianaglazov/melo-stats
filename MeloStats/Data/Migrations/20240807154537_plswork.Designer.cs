@@ -4,6 +4,7 @@ using MeloStats.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MeloStats.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240807154537_plswork")]
+    partial class plswork
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,7 +54,7 @@ namespace MeloStats.Data.Migrations
 
                     b.HasIndex("ArtistId");
 
-                    b.ToTable("Albums", (string)null);
+                    b.ToTable("Albums");
                 });
 
             modelBuilder.Entity("MeloStats.Models.ApplicationUser", b =>
@@ -154,7 +157,7 @@ namespace MeloStats.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Artists", (string)null);
+                    b.ToTable("Artists");
                 });
 
             modelBuilder.Entity("MeloStats.Models.Feature", b =>
@@ -189,7 +192,7 @@ namespace MeloStats.Data.Migrations
                         .IsUnique()
                         .HasFilter("[TrackId] IS NOT NULL");
 
-                    b.ToTable("Features", (string)null);
+                    b.ToTable("Features");
                 });
 
             modelBuilder.Entity("MeloStats.Models.ListeningHistory", b =>
@@ -215,7 +218,7 @@ namespace MeloStats.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ListeningHistories", (string)null);
+                    b.ToTable("ListeningHistories");
                 });
 
             modelBuilder.Entity("MeloStats.Models.SpotifyToken", b =>
@@ -249,7 +252,7 @@ namespace MeloStats.Data.Migrations
                         .IsUnique()
                         .HasFilter("[UserId] IS NOT NULL");
 
-                    b.ToTable("SpotifyTokens", (string)null);
+                    b.ToTable("SpotifyTokens");
                 });
 
             modelBuilder.Entity("MeloStats.Models.Track", b =>
@@ -289,7 +292,7 @@ namespace MeloStats.Data.Migrations
 
                     b.HasIndex("ArtistId");
 
-                    b.ToTable("Tracks", (string)null);
+                    b.ToTable("Tracks");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

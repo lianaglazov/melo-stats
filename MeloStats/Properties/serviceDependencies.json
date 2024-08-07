@@ -1,13 +1,16 @@
 {
   "dependencies": {
-    "mssql1": {
+    "mssql3": {
       "type": "mssql",
-      "connectionId": "ConnectionStrings:DefaultConnection"
+      "connectionId": "ConnectionStrings:SpotifyDB"
     },
     "mssql2": {
       "type": "mssql",
-      "connectionId": "SpotifyDB",
-      "dynamicId": null
+      "connectionId": "SpotifyDB"
+    },
+    "mssql1": {
+      "type": "mssql",
+      "connectionId": "ConnectionStrings:DefaultConnection"
     }
   }
 }

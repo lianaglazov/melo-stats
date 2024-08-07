@@ -65,7 +65,7 @@ builder.Services.AddAuthentication(options =>
             userToken.AccessToken = context.AccessToken;
             userToken.RefreshToken = context.RefreshToken;
             userToken.TokenType = "Bearer";
-            userToken.CreatedAt = DateTime.UtcNow;
+            userToken.Expires = DateTime.UtcNow.AddHours(1);
             user.SpotifyUserId = context.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
             user.SpotifyToken = userToken;
             await _userManager.UpdateAsync(user);

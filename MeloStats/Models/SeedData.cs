@@ -23,7 +23,6 @@ namespace MeloStats.Models
                 // CREAREA ROLURILOR IN BD
                 // daca nu contine roluri, acestea se vor crea
                 context.Roles.AddRange(
-                new IdentityRole { Id = "60c87f8c-65cd-41f7-9345-937ac4225a60", Name = "Admin", NormalizedName = "Admin".ToUpper() },
                 new IdentityRole { Id = "60c87f8c-65cd-41f7-9345-937ac4225a61", Name = "User", NormalizedName = "User".ToUpper() }
                 );
                 // o noua instanta pe care o vom utiliza pentru crearea parolelor utilizatorilor
@@ -32,16 +31,6 @@ namespace MeloStats.Models
                 // CREAREA USERILOR IN BD
                 // Se creeaza cate un user pentru fiecare rol
                 context.Users.AddRange(
-                new ApplicationUser
-                {
-                    Id = "0de5e7ef-410c-4baf-ac66-23890692aeb0", // primary key
-                    UserName = "admin@test.com",
-                    EmailConfirmed = true,
-                    NormalizedEmail = "ADMIN@TEST.COM",
-                    Email = "admin@test.com",
-                    NormalizedUserName = "ADMIN@TEST.COM",
-                    PasswordHash = hasher.HashPassword(null, "Admin1!")
-                },
                 
                 new ApplicationUser
                 {
@@ -51,16 +40,12 @@ namespace MeloStats.Models
                     NormalizedEmail = "USER@TEST.COM",
                     Email = "user@test.com",
                     NormalizedUserName = "USER@TEST.COM",
-                    PasswordHash = hasher.HashPassword(null, "User1!")
+                    PasswordHash = hasher.HashPassword(null, "User1!"),
+                    SpotifyUserId = "useridtest"
                 }
                 );
                 // ASOCIEREA USER-ROLE
                 context.UserRoles.AddRange(
-                new IdentityUserRole<string>
-                {
-                    RoleId = "60c87f8c-65cd-41f7-9345-937ac4225a60",
-                    UserId = "0de5e7ef-410c-4baf-ac66-23890692aeb0"
-                },
                 new IdentityUserRole<string>
                 {
                     RoleId = "60c87f8c-65cd-41f7-9345-937ac4225a61",
