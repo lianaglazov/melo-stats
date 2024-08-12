@@ -1,0 +1,94 @@
+﻿@model IEnumerable<dynamic>
+
+@{
+    ViewData["Title"] = "Hourly Listening Stats";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            overflow-x: hidden;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .fade-out {
+            opacity: 0;
+        }
+
+        table {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>@ViewData["Title"]</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Hour of Day</th>
+                    <th>Total Listening Time (minutes)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var stat in Model)
+                {
+                    <tr>
+                        <td>@stat.ListeningHour:00</td>
+                        <td>@(stat.TotalListeningTime / 60)</td> 
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div>
+            <canvas id="hourlyChart"></canvas>
+        </div>
+    </div>
+
+    @section Scripts {
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            var ctx = document.getElementById('hourlyChart').getContext('2d');
+            var chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: @Html.Raw(Json.Serialize(Model.Select(m => m.ListeningHour))),
+                    datasets: [{
+                        label: 'Total Listening Time (minutes)',
+                        data: @Html.Raw(Json.Serialize(Model.Select(m => m.TotalListeningTime / 60))),
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            window.onscroll = function () {
+                if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+                    document.body.classList.add('fade-out');
+                    setTimeout(function () {
+                        window.location.href = '@Url.Action("Days", "ListeningHistories")';
+                    }, 500); 
+                }
+            };
+        </script>
+    }
+</body>
+</html>
+

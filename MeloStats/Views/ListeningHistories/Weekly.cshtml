@@ -1,0 +1,64 @@
+﻿@model IEnumerable<dynamic>
+
+@{
+    ViewData["Title"] = "Listening Heatmap";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<style>
+
+    .heatmap {
+        display: grid;
+        grid-template-columns: repeat(24, 1cm);
+        grid-template-rows: repeat(7, 1cm);
+        gap: 1px;
+        grid-column: 2 / -1; 
+        grid-row: 2 / -1; 
+    }
+
+    .cell {
+        width: 1cm;
+        height: 1cm;
+        border-radius: 0.2cm; 
+        background-color: #e5e3e3;
+        border: 1px solid #ddd;
+    }
+
+    .cell[data-time] {
+            background-color: #1DB954;
+    }
+
+    .color-bar {
+        width: 1cm;
+        height: 1cm;
+        border-radius: 0.2cm;
+        border: 1px solid #ddd;
+    }
+
+</style>
+
+
+<div class="heatmap">
+    @for (int day = 0; day < 7; day++)
+    {
+        @for (int hour = 0; hour < 24; hour++)
+        {
+            var dataPoint = Model.FirstOrDefault(d => d.DayOfWeek == ((DayOfWeek)day).ToString() && d.Hour == hour);
+            var minutes = dataPoint?.TotalListeningTime / 60 ?? 0; 
+            var intensity = Math.Min(215, (int)(minutes * 215 / 60));
+
+            var red = 215 - intensity;
+            var gray =(int)(215 - (intensity/1.45)) ;
+
+            <div class="cell" data-time="@minutes" style="background-color: rgb(@red, 215, @gray);"></div>
+        }
+    }
+</div>
+
+
+
+
+
+
+

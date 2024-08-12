@@ -21,7 +21,7 @@ body {
   margin-bottom: 60px;
 }
 
-.dropbtn {
+.greenbtn {
     background-color: #04AA6D;
     color: white;
     padding: 16px;
@@ -64,10 +64,10 @@ body {
 }
 
 /* Change the background color of the dropdown button when the dropdown content is shown */
-.dropdown:hover .dropbtn {
+.dropdown:hover .greenbtn {
     background-color: #3e8e41;
 }
-.dropbtn:hover {
+.greenbtn:hover {
     background-color: #3e8e41;
 }
 a:hover {

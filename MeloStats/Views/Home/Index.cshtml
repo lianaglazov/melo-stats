@@ -7,7 +7,7 @@
 @if (SignInManager.IsSignedIn(User))
 {
     <div class="dropdown">
-        <button class="dropbtn">View Your Top Artists</button>
+        <button class="greenbtn">View Your Top Artists</button>
         <div class="dropdown-content">
             <a asp-controller="Artists" asp-action="TopArtists" asp-route-timeRange="short_term" class="dropdown-item">Last 4 weeks</a>
             <a asp-controller="Artists" asp-action="TopArtists" asp-route-timeRange="medium_term" class="dropdown-item">Last 6 months</a>
@@ -16,7 +16,7 @@
         &nbsp
     </div>
     <div class="dropdown">
-        <button class="dropbtn">View Your Top Tracks</button>
+        <button class="greenbtn">View Your Top Tracks</button>
         <div class="dropdown-content">
             <a asp-controller="Tracks" asp-action="TopTracks" asp-route-timeRange = "short_term" class="dropdown-item">Last 4 weeks</a>
             <a asp-controller="Tracks" asp-action="TopTracks" asp-route-timeRange = "medium_term"  class="dropdown-item">Last 6 months</a>
@@ -24,7 +24,7 @@
         </div>
         &nbsp
     </div>
-        <a asp-controller="Tracks" asp-action="RecentTracks" class="dropbtn">View Your Recent Listened Tracks</a>
+        <a asp-controller="Tracks" asp-action="RecentTracks" class="greenbtn">View Your Recent Listened Tracks</a>
     
 }
 else
