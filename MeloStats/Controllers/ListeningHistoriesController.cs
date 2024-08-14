@@ -1,5 +1,7 @@
 ﻿using MeloStats.Data;
+using MeloStats.Data.Migrations;
 using MeloStats.Models;
+using MeloStats.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +12,12 @@ namespace MeloStats.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
-        public ListeningHistoriesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager) 
+        private readonly SpotifyApiService _spotifyApiService;
+        public ListeningHistoriesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, SpotifyApiService spotifyApiService) 
         {
             _context = context;
             _userManager = userManager;
+            _spotifyApiService = spotifyApiService;
         }
         public IActionResult Index()
         {
@@ -84,6 +88,61 @@ namespace MeloStats.Controllers
 
             return View(hourlyStats);
         }
+
+        public async Task<IActionResult> Stats()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Users");
+            }
+            var meanPopularity = await _context.ListeningHistories
+            .Where(lh => lh.UserId == user.Id)
+            .Join(
+                _context.Tracks,
+                lh => lh.TrackId,
+                t => t.Id,
+                (lh, t) => t.Popularity 
+            )
+            .AverageAsync(p => p);
+            ViewBag.MeanPopularity = meanPopularity;
+
+            var tracks = await _context.ListeningHistories
+                .Where(l => l.UserId == user.Id)
+                .Include(l => l.Track)
+                .Select(l => l.Track).ToListAsync();
+
+            var Danceability = 0.0;
+            var Energy = 0.0;
+            var Tempo = 0.0;
+            var Valence = 0.0;
+            var Instrumentalness = 0.0;
+            var count = tracks.Count();
+
+            foreach (var track in tracks)
+            {
+                var features = await _context.Features
+                .FirstOrDefaultAsync(f => f.TrackId == track.Id);
+
+                if(features == null)
+                {
+                    features = await _spotifyApiService.GetTrackFeaturesAsync(track.Id);
+                }
+                Danceability += features.Danceability;
+                Energy += features.Energy;
+                Tempo += features.Tempo;
+                Valence += features.Valence;
+                Instrumentalness += features.Instrumentalness;
+            }
+            ViewBag.Danceability = Danceability / count;
+            ViewBag.Energy = Energy / count;
+            ViewBag.Tempo = Tempo / count;
+            ViewBag.Valence = Valence / count;
+            ViewBag.Instrumentalness = Instrumentalness / count;
+
+            return View("Stats");
+        }
+
 
         private IEnumerable<(DateTime Date, int Hour, double TotalListeningTime)> SplitListeningTimeByHour(ListeningHistory l)
         {

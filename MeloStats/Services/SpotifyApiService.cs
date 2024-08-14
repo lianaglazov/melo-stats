@@ -288,6 +288,10 @@
                 var trackName = item["track"]["name"].ToString();
                 var duration = int.Parse(item["track"]["duration_ms"].ToString()) / 1000;
                 var playedAt = DateTime.Parse(item["played_at"].ToString());
+                string timeZoneId = "E. Europe Standard Time";
+
+                TimeZoneInfo localZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+                playedAt = TimeZoneInfo.ConvertTimeFromUtc(playedAt, localZone);
                 var popularity = int.Parse(item["track"]["popularity"].ToString());
 
                 var albumItem = item["track"]["album"];
