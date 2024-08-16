@@ -13,11 +13,13 @@ namespace MeloStats.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SpotifyApiService _spotifyApiService;
-        public ListeningHistoriesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, SpotifyApiService spotifyApiService) 
+        private readonly GeniusApiService _geniusApiService;
+        public ListeningHistoriesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, SpotifyApiService spotifyApiService, GeniusApiService geniusApiService) 
         {
             _context = context;
             _userManager = userManager;
             _spotifyApiService = spotifyApiService;
+            _geniusApiService = geniusApiService;
         }
         public IActionResult Index()
         {
@@ -73,18 +75,33 @@ namespace MeloStats.Controllers
 
             var listeningData = await _context.ListeningHistories
                 .Where(l => l.PlayedAt >= sevenDaysAgo)
-                .Include(l => l.Track)  
+                .Include(l => l.Track)
                 .ToListAsync();
-            var hourlyStats = listeningData
-               .SelectMany(l => SplitListeningTimeByHour(l))
-               .GroupBy(l => new { l.Date.DayOfWeek, l.Hour })
-               .Select(g => new
-               {
-                   DayOfWeek = g.Key.DayOfWeek.ToString(),
-                   Hour = g.Key.Hour,
-                   TotalListeningTime = g.Sum(l => l.TotalListeningTime)  
-               })
-               .ToList();
+            var hourlyStats = new Dictionary<DateTime, Dictionary<int, double>>();
+
+            foreach (var listening in listeningData)
+            {
+                var hourlySegments = SplitListeningTimeByHour(listening);
+                foreach (var segment in hourlySegments)
+                {
+                    if (!hourlyStats.ContainsKey(segment.Date))
+                    {
+                        hourlyStats[segment.Date] = new Dictionary<int, double>();
+                    }
+
+                    if (!hourlyStats[segment.Date].ContainsKey(segment.Hour))
+                    {
+                        hourlyStats[segment.Date][segment.Hour] = 0;
+                    }
+
+                    hourlyStats[segment.Date][segment.Hour] += segment.TotalListeningTime;
+                }
+            }
+            hourlyStats = hourlyStats.OrderBy(ob => ob.Key).ToDictionary(obj => obj.Key, obj => obj.Value);
+            var allDates = Enumerable.Range(0, 7)
+                .Select(i => sevenDaysAgo.AddDays(i).Date)
+                .ToList();
+            ViewBag.AllDates = allDates;
 
             return View(hourlyStats);
         }
@@ -118,7 +135,8 @@ namespace MeloStats.Controllers
             var Valence = 0.0;
             var Instrumentalness = 0.0;
             var count = tracks.Count();
-
+           
+            List<string> languages = new List<string>();
             foreach (var track in tracks)
             {
                 var features = await _context.Features
@@ -128,18 +146,25 @@ namespace MeloStats.Controllers
                 {
                     features = await _spotifyApiService.GetTrackFeaturesAsync(track.Id);
                 }
+                track.FeatureId = features.Id;
+                _context.Tracks.Update(track);
+                _context.SaveChanges();
                 Danceability += features.Danceability;
                 Energy += features.Energy;
                 Tempo += features.Tempo;
                 Valence += features.Valence;
                 Instrumentalness += features.Instrumentalness;
+                var artist = await _context.Artists.FirstOrDefaultAsync(a => a.Id == track.ArtistId);
+                var lan = await _geniusApiService.GetSongLanguageAsync(track.Name, artist.Name);
+                if( lan != "Unknown" )
+                    languages.Add(lan);
             }
             ViewBag.Danceability = Danceability / count;
             ViewBag.Energy = Energy / count;
             ViewBag.Tempo = Tempo / count;
             ViewBag.Valence = Valence / count;
             ViewBag.Instrumentalness = Instrumentalness / count;
-
+            ViewBag.Languages = languages;
             return View("Stats");
         }
 

@@ -1,33 +1,32 @@
-﻿@model IEnumerable<dynamic>
-
+﻿@model Dictionary<DateTime, Dictionary<int, double>>
 @{
     ViewData["Title"] = "Listening Heatmap";
+}
+@{
+    var allDates = ViewBag.AllDates as List<DateTime>;
 }
 
 <h2>@ViewData["Title"]</h2>
 
 <style>
-
-    .heatmap {
-        display: grid;
-        grid-template-columns: repeat(24, 1cm);
-        grid-template-rows: repeat(7, 1cm);
-        gap: 1px;
-        grid-column: 2 / -1; 
-        grid-row: 2 / -1; 
+    .heatmap-table {
+        width: 100%;
+        border-collapse: collapse;
     }
 
-    .cell {
-        width: 1cm;
-        height: 1cm;
-        border-radius: 0.2cm; 
-        background-color: #e5e3e3;
-        border: 1px solid #ddd;
-    }
+        .heatmap-table th, .heatmap-table td {
+            width: 1cm;
+            height: 1cm;
+            border: 1px solid #ddd;
+            text-align: center;
+            vertical-align: middle;
+            border-radius: 0.2cm;
+            background-color: #e5e3e3;
+        }
 
-    .cell[data-time] {
-            background-color: #1DB954;
-    }
+        .heatmap-table th {
+            background-color: #f4f4f4;
+        }
 
     .color-bar {
         width: 1cm;
@@ -36,25 +35,62 @@
         border: 1px solid #ddd;
     }
 
+    .day-header {
+        background-color: #f4f4f4;
+        text-align: center;
+        font-weight: bold;
+    }
 </style>
 
-
-<div class="heatmap">
-    @for (int day = 0; day < 7; day++)
-    {
-        @for (int hour = 0; hour < 24; hour++)
+<table class="heatmap-table">
+    <thead>
+        <tr>
+            <th class="day-header">Date</th>
+            @for (int hour = 0; hour < 24; hour++)
+            {
+                <th>@hour:00</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var date in allDates)
         {
-            var dataPoint = Model.FirstOrDefault(d => d.DayOfWeek == ((DayOfWeek)day).ToString() && d.Hour == hour);
-            var minutes = dataPoint?.TotalListeningTime / 60 ?? 0; 
-            var intensity = Math.Min(215, (int)(minutes * 215 / 60));
+            var dateEntry = Model.ContainsKey(date) ? Model[date] : null;
+            
+            <tr>
+                <td>@date.ToString("dd MMM")</td>
+                @for (int hour = 0; hour < 24; hour++)
+                {
+                    double listeningTime = 0;
+                    if (dateEntry != null)
+                    {
+                        if (dateEntry.ContainsKey(hour))
+                        {
+                            listeningTime = dateEntry[hour];
+                        }
+                    }
 
-            var red = 215 - intensity;
-            var gray =(int)(215 - (intensity/1.45)) ;
-
-            <div class="cell" data-time="@minutes" style="background-color: rgb(@red, 215, @gray);"></div>
+                    <td style="background-color:@GetHeatmapColor(listeningTime);">
+                        &nbsp;
+                    </td>
+                }
+            </tr>
         }
+    </tbody>
+</table>
+
+@functions {
+    private string GetHeatmapColor(double listeningTime)
+    {
+        var minutes = listeningTime / 60;
+        var intensity = Math.Min(215, (int)(minutes * 215 / 60));
+        var red = 215 - intensity;
+        var blue = (int)(215 - (intensity / 1.45));
+
+        return $"rgb({red}, 215, {blue})";
     }
-</div>
+}
+
 
 
 

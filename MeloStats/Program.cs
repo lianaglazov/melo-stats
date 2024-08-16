@@ -24,6 +24,10 @@ var spotifyConfig = builder.Configuration.GetSection("Spotify");
 builder.Services.AddSingleton(new SpotifyAuthService(spotifyConfig["ClientId"], spotifyConfig["ClientSecret"]));
 builder.Services.AddTransient<SpotifyApiService>();
 
+// Genius services
+
+builder.Services.AddSingleton<GeniusApiService>();
+
 
 builder.Services.AddAuthentication(options =>
 {

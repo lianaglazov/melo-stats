@@ -12,5 +12,10 @@
     Mean Valence : @ViewBag.Valence
     <br />
     Mean Instrumentalness : @ViewBag.Instrumentalness
+    <br />
+    @foreach(var lan in ViewBag.Languages)
+    {
+        <div>@lan &nbsp; </div>
+    }
 
 </div>

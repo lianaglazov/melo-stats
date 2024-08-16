@@ -461,10 +461,11 @@
                     Instrumentalness = float.Parse(json["instrumentalness"].ToString()),
                     TrackId = trackId
                 };
+                track.FeatureId = features.Id;
+                _context.Tracks.Update(track);
                 _context.Features.Add(features);
                 _context.SaveChanges();
             }
-
             return features;
         }
 
