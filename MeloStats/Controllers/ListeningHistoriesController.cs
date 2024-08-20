@@ -154,17 +154,17 @@ namespace MeloStats.Controllers
                 Tempo += features.Tempo;
                 Valence += features.Valence;
                 Instrumentalness += features.Instrumentalness;
-                var artist = await _context.Artists.FirstOrDefaultAsync(a => a.Id == track.ArtistId);
-                var lan = await _geniusApiService.GetSongLanguageAsync(track.Name, artist.Name);
-                if( lan != "Unknown" )
-                    languages.Add(lan);
+                //var artist = await _context.Artists.FirstOrDefaultAsync(a => a.Id == track.ArtistId);
+                //var lan = await _geniusApiService.GetSongLanguageAsync(track.Name, artist.Name);
+               // if( lan != "Unknown" )
+                    //languages.Add(lan);
             }
             ViewBag.Danceability = Danceability / count;
             ViewBag.Energy = Energy / count;
             ViewBag.Tempo = Tempo / count;
             ViewBag.Valence = Valence / count;
             ViewBag.Instrumentalness = Instrumentalness / count;
-            ViewBag.Languages = languages;
+            //ViewBag.Languages = languages;
             return View("Stats");
         }
 
