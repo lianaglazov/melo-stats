@@ -49,10 +49,10 @@ namespace MeloStatsTest
                 .ReturnsAsync(user);
 
             var topTracks = new List<Track>
-        {
+            {
             new Track { Name = "Track 1" },
             new Track { Name = "Track 2" }
-        };
+            };
 
             _spotifyApiServiceMock.Setup(s => s.GetTopTracksAsync(user, "medium_term"))
                 .ReturnsAsync(topTracks);

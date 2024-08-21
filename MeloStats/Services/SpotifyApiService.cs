@@ -64,7 +64,7 @@
             return JObject.Parse(responseContent);
         }
 
-        public async Task<List<Track>> GetTopTracksAsync(ApplicationUser user, string timeRange = "medium_term")
+        public virtual async Task<List<Track>> GetTopTracksAsync(ApplicationUser user, string timeRange = "medium_term")
         {
             var endpoint = $"v1/me/top/tracks?time_range={timeRange}&limit=20";
 
