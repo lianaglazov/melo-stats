@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MeloStats.Services;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using MeloStats.Models;
-using MeloStats.Data.Migrations;
 
 namespace MeloStats.Controllers
 {

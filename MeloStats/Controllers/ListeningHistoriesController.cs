@@ -1,10 +1,10 @@
 ﻿using MeloStats.Data;
-using MeloStats.Data.Migrations;
 using MeloStats.Models;
 using MeloStats.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MeloStats.Controllers
 {
@@ -21,10 +21,8 @@ namespace MeloStats.Controllers
             _spotifyApiService = spotifyApiService;
             _geniusApiService = geniusApiService;
         }
-        public IActionResult Index()
-        {
-            return View();
-        }
+        [Authorize]
+        [HttpGet]
         public async Task<IActionResult> Hours()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -44,6 +42,8 @@ namespace MeloStats.Controllers
             return View(listened);
 
         }
+        [Authorize]
+        [HttpGet]
         public async Task<IActionResult> Days()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -68,6 +68,7 @@ namespace MeloStats.Controllers
             return View(listened);
 
         }
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> Weekly()
         {
@@ -106,6 +107,8 @@ namespace MeloStats.Controllers
             return View(hourlyStats);
         }
 
+        [Authorize]
+        [HttpGet]
         public async Task<IActionResult> Stats()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -154,20 +157,14 @@ namespace MeloStats.Controllers
                 Tempo += features.Tempo;
                 Valence += features.Valence;
                 Instrumentalness += features.Instrumentalness;
-                //var artist = await _context.Artists.FirstOrDefaultAsync(a => a.Id == track.ArtistId);
-                //var lan = await _geniusApiService.GetSongLanguageAsync(track.Name, artist.Name);
-               // if( lan != "Unknown" )
-                    //languages.Add(lan);
             }
             ViewBag.Danceability = Danceability / count;
             ViewBag.Energy = Energy / count;
             ViewBag.Tempo = Tempo / count;
             ViewBag.Valence = Valence / count;
             ViewBag.Instrumentalness = Instrumentalness / count;
-            //ViewBag.Languages = languages;
             return View("Stats");
         }
-
 
         private IEnumerable<(DateTime Date, int Hour, double TotalListeningTime)> SplitListeningTimeByHour(ListeningHistory l)
         {

@@ -23,14 +23,16 @@
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _configuration;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly GeniusApiService _geniusApiService;
 
-        public SpotifyApiService(SpotifyAuthService authService, UserManager<ApplicationUser> userManager, ApplicationDbContext context, IConfiguration configuration, IHttpClientFactory httpClientFactory)
+        public SpotifyApiService(SpotifyAuthService authService, UserManager<ApplicationUser> userManager, ApplicationDbContext context, IConfiguration configuration, IHttpClientFactory httpClientFactory, GeniusApiService geniusApiService)
         {
             _authService = authService;
             _userManager = userManager;
             _context = context;
             _configuration = configuration;
             _httpClientFactory = httpClientFactory;
+            _geniusApiService = geniusApiService;
         }
 
         private async Task<JObject> FetchWebApi(ApplicationUser user, string endpoint, HttpMethod method, object body = null)
@@ -59,7 +61,6 @@
                 var errorContent = await response.Content.ReadAsStringAsync();
                 throw new Exception($"Error fetching data from Spotify API: {response.StatusCode}, {errorContent}");
             }
-            //_context.SaveChanges();
             var responseContent = await response.Content.ReadAsStringAsync();
             return JObject.Parse(responseContent);
         }
@@ -102,7 +103,6 @@
                 var artistItem = item["artists"].First();
                 var spotifyArtistId = artistItem["id"].ToString();
                 var artistName = artistItem["name"].ToString();
-
                 // api-ul pt artisti este apelat doar in cazul in care nu avem toate informatiile in db
                 var artist = await _context.Artists.FirstOrDefaultAsync(a => a.SpotifyArtistId == spotifyArtistId);
                 if (artist == null || artist.Popularity == 0)
@@ -185,12 +185,14 @@
                 var track = await _context.Tracks.FirstOrDefaultAsync(t => t.SpotifyTrackId == spotifyTrackId);
                 if (track == null)
                 {
+                    var language = await _geniusApiService.GetSongLanguageAsync(trackName, artistName);
                     track = new Track
                     {
                         SpotifyTrackId = spotifyTrackId,
                         Name = trackName,
                         Duration = duration,
                         Popularity = popularity,
+                        Language = language,
                         ArtistId = artist.Id,
                         AlbumId = album.Id
                     };
@@ -316,6 +318,7 @@
                 var artistItem = item["track"]["artists"].First();
                 var spotifyArtistId = artistItem["id"].ToString();
                 var artistName = artistItem["name"].ToString();
+
                 var artist = await _context.Artists.FirstOrDefaultAsync(a => a.SpotifyArtistId == spotifyArtistId);
                 // calling the api for the artist only if have missing information in the db
                 if (artist == null || artist.Popularity == 0)
@@ -386,12 +389,14 @@
                 var track = await _context.Tracks.FirstOrDefaultAsync(t => t.SpotifyTrackId == spotifyTrackId);
                 if (track == null)
                 {
+                    var language = await _geniusApiService.GetSongLanguageAsync(trackName, artistName);
                     track = new Track
                     {
                         SpotifyTrackId = spotifyTrackId,
                         Name = trackName,
                         Duration = duration,
                         Popularity = popularity,
+                        Language = language,
                         ArtistId = artist.Id,
                         AlbumId = album.Id
                     };
@@ -500,7 +505,6 @@
                         var responseContent = await response.Content.ReadAsStringAsync();
                         var jsonResponse = JObject.Parse(responseContent);
 
-                        // Extract the access token from the JSON response
                         var accessToken = jsonResponse["access_token"].ToString();
                         var userToken = await _context.SpotifyTokens.FirstOrDefaultAsync(t => t.RefreshToken == refreshToken);
                         if (userToken != null)
@@ -521,7 +525,6 @@
             }
             catch (Exception ex)
             {
-                // Handle exceptions here, log them, or rethrow as needed
                 throw new Exception("Error refreshing access token", ex);
             }
         }
