@@ -1,4 +1,6 @@
-﻿// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
-
-// Write your JavaScript code.
+﻿function toggleSidebar() {
+    var sidebar = document.querySelector('.sidebar');
+    var container = document.querySelector('.container');
+    sidebar.classList.toggle('collapsed');
+    //container.style.marginLeft = sidebar.classList.contains('collapsed') ? '0px' : '250px';
+}

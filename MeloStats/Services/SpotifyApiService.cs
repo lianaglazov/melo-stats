@@ -103,9 +103,9 @@
                 var artistItem = item["artists"].First();
                 var spotifyArtistId = artistItem["id"].ToString();
                 var artistName = artistItem["name"].ToString();
-                // api-ul pt artisti este apelat doar in cazul in care nu avem toate informatiile in db
+                // api-ul pt artisti este apelat doar in cazul in care nu aveminformatiile in db
                 var artist = await _context.Artists.FirstOrDefaultAsync(a => a.SpotifyArtistId == spotifyArtistId);
-                if (artist == null || artist.Popularity == 0)
+                if (artist == null)
                 {
                     var artistEndpoint = $"v1/artists/{spotifyArtistId}";
                     var artistResponse = await FetchWebApi(user, artistEndpoint, HttpMethod.Get);
@@ -120,32 +120,19 @@
                     var artistImg = artistResponse["images"].FirstOrDefault()?["url"]?.ToString();
                     var genres = string.Join(", ", artistGenres);
 
-                    // Add artist to the database if not exists
-
-                    if (artist == null)
+                    artist = new Artist
                     {
-                        artist = new Artist
-                        {
-                            SpotifyArtistId = spotifyArtistId,
-                            Name = artistName,
-                            Popularity = artistPopularity,
-                            Genres = genres,
-                            ImageUrl = artistImg,
-                            Tracks = new List<Track>(),
-                            Albums = new List<Album>()
-                        };
-                        _context.Artists.Add(artist);
-                        await _context.SaveChangesAsync();
-                    }
-                    else
-                    {
-                        // update genres popularity and image
-                        artist.Genres = genres;
-                        artist.Popularity = artistPopularity;
-                        artist.ImageUrl = artistImg;
-                        _context.Artists.Update(artist);
-                        _context.SaveChanges();
-                    }
+                        SpotifyArtistId = spotifyArtistId,
+                        Name = artistName,
+                        Popularity = artistPopularity,
+                        Genres = genres,
+                        ImageUrl = artistImg,
+                        Tracks = new List<Track>(),
+                        Albums = new List<Album>()
+                    };
+                    _context.Artists.Add(artist);
+                    await _context.SaveChangesAsync();
+                    
                 }
 
                 // adding the albumin the db if it doesn't exists

@@ -9,9 +9,11 @@
     <link rel="stylesheet" href="~/MeloStats.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+    
+    <header id="header">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3">
             <div class="container-fluid">
+                <div class="toggle-btn" onclick="toggleSidebar()">&#9776;</div>
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">MeloStats</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
@@ -31,20 +33,38 @@
             </div>
         </nav>
     </header>
+    <div class="sidebar collapsed">
+        <div class="dropdown">
+            <a href="#" class="dropdown-btn">Top Artists</a>
+            <div class="dropdown-content">
+                <a href="/Artists/TopArtists?timeRange=short_term">Last 4 weeks</a>
+                <a href="/Artists/TopArtists?timeRange=medium_term">Last 6 months</a>
+                <a href="/Artists/TopArtists?timeRange=long_term">Last year</a>
+            </div>
+        </div>
+        <div class="dropdown">
+            <a href="#" class="dropdown-btn">Top Tracks</a>
+            <div class="dropdown-content">
+                <a href="/Tracks/TopTracks?timeRange=short_term">Last 4 weeks</a>
+                <a href="/Tracks/TopTracks?timeRange=medium_term">Last 6 months</a>
+                <a href="/Tracks/TopTracks?timeRange=long_term">Last year</a>
+            </div>
+        </div>
+        <a href="/Tracks/RecentTracks" class="sidebar-link">Recent Listened Tracks</a>
+    </div>
+
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2024 - MeloStats - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+
 </body>
 </html>
