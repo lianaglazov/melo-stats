@@ -1,9 +1,5 @@
 ﻿@model IEnumerable<dynamic>
 
-@{
-    ViewData["Title"] = "Hourly Listening Stats";
-}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,44 +13,29 @@
             font-family: Arial, sans-serif;
             overflow-x: hidden;
             transition: opacity 0.5s ease-in-out;
+            background-color:floralwhite;
         }
 
         .fade-out {
             opacity: 0;
+            transition: opacity 0.5s ease-in-out;
         }
-
-        table {
-            margin-bottom: 20px;
-        }
+       
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>@ViewData["Title"]</h2>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Hour of Day</th>
-                    <th>Total Listening Time (minutes)</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var stat in Model)
-                {
-                    <tr>
-                        <td>@stat.ListeningHour:00</td>
-                        <td>@(stat.TotalListeningTime / 60)</td> 
-                    </tr>
-                }
-            </tbody>
-        </table>
+        <h2 style="text-align:center; margin-top:2%">Hourly listening statistics</h2>
 
-        <div>
+        <p style="text-align:center;">The chart below summarises how much you listened to music categorized by hours</p>
+
+        <div >
             <canvas id="hourlyChart"></canvas>
         </div>
+        <h6 style="margin-top:5%; text-align:center;">Scroll down to see which days of the week you listen to music the most</h6>
+        <br /><br /><br />
     </div>
     <footer>
-    <br /><br /><br />
     </footer>
 
 

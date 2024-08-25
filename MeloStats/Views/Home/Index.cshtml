@@ -6,7 +6,18 @@
 
 @if (SignInManager.IsSignedIn(User))
 {
-    
+    <h2 style="text-align:center; margin-top: 5%;">Welcome to MeloStats!</h2>
+    <div id="initial-content" style="text-align: center; margin-top: 10%;">
+        Press the button underneath to see statistics based on your listening activity on Spotify! <br /> <br />
+        <button id="fetch-data-btn" class="loginbtn" onclick="fetchDataAndRedirect()">Retrieve my listening behaviour</button>
+    </div>
+    <div id="loading-screen" style="display: none; text-align: center; margin-top: 10%;">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p>Fetching your data, please wait...</p>
+    </div>
+
 }
 else
 {

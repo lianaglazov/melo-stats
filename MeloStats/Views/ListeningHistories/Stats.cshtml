@@ -1,21 +1,93 @@
-﻿<h1 class="text-center">Stats</h1>
-<br />
-<div>
-    Mean Popularity : @ViewBag.MeanPopularity
-    <br />
-    Mean Danceability : @ViewBag.Danceability
-    <br />
-    Mean Energy : @ViewBag.Energy
-    <br />
-    Mean Tempo : @ViewBag.Tempo
-    <br />
-    Mean Valence : @ViewBag.Valence
-    <br />
-    Mean Instrumentalness : @ViewBag.Instrumentalness
-    <br />
-    @*@foreach(var lan in ViewBag.Languages)
-    {
-        <div>@lan &nbsp; </div>
-    }*@
+﻿<h1 style="text-align:center; margin-top: 5%;">Your Melo Statistics</h1>
+<h3 style="text-align:center; margin-top: 5%;">Scroll down to see what the songs you listen to tell about the type of person you are</h3>
+<style>
+    #stats-container {
+        text-align: center;
+    }
 
+    .slideshow-section {
+        height: 100vh; 
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+    }
+
+    .mySlides {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 1s ease-in-out;
+    }
+
+        .mySlides.fade-in {
+            opacity: 1;
+        }
+
+    .text {
+        color: #333;
+        font-size: 2rem;
+    }
+</style>
+
+<div id="stats-container">
+    <div>
+        @foreach (KeyValuePair<string, int> entry in ViewBag.Languages)
+        {
+            <p>
+                @entry.Value songs are in @entry.Key
+            </p>
+        }
+    </div>
+    <div class="slideshow-section">
+        <div class="mySlides fade">
+            <div class="text">@($"Mean Energy: {ViewBag.Energy:N2}")</div>
+        </div>
+    </div>
+    <div class="slideshow-section">
+        <div class="mySlides fade">
+            <div class="text">@($"Mean Danceability: {ViewBag.Danceability:N2}")</div>
+        </div>
+    </div>
+    <div class="slideshow-section">
+        <div class="mySlides fade">
+            <div class="text">@($"Mean Popularity: {ViewBag.Popularity:N2}")</div>
+        </div>
+    </div>
+    <div class="slideshow-section">
+        <div class="mySlides fade">
+            <div class="text">@($"Mean Tempo: {ViewBag.Tempo:N2}")</div>
+        </div>
+    </div>
+    <div class="slideshow-section">
+        <div class="mySlides fade">
+            <div class="text">@($"Mean Valence: {ViewBag.Valence:N2}")</div>
+        </div>
+    </div>
+    <div class="slideshow-section">
+        <div class="mySlides fade">
+            <div class="text">@($"Mean Instrumentalness: {ViewBag.Instrumentalness:N2}")</div>
+        </div>
+    </div>
 </div>
+
+<script>
+    document.addEventListener("scroll", function () {
+        const slides = document.querySelectorAll(".mySlides");
+        const windowHeight = window.innerHeight;
+
+        slides.forEach((slide, index) => {
+            const slidePosition = slide.parentElement.getBoundingClientRect().top;
+
+            if (slidePosition < windowHeight - 100) {
+                slide.classList.add("fade-in");
+            } else {
+                slide.classList.remove("fade-in");
+            }
+        });
+    });
+</script>
+
+
+

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using Panlingo.LanguageCode;
 
 namespace MeloStats.Controllers
 {
@@ -116,6 +117,7 @@ namespace MeloStats.Controllers
             {
                 return RedirectToAction("Login", "Users");
             }
+            await _spotifyApiService.GetRecentlyPlayedTracksAsync(user);
             var meanPopularity = await _context.ListeningHistories
             .Where(lh => lh.UserId == user.Id)
             .Join(
@@ -125,7 +127,7 @@ namespace MeloStats.Controllers
                 (lh, t) => t.Popularity 
             )
             .AverageAsync(p => p);
-            ViewBag.MeanPopularity = meanPopularity;
+            ViewBag.Popularity = meanPopularity;
 
             var tracks = await _context.ListeningHistories
                 .Where(l => l.UserId == user.Id)
@@ -139,7 +141,6 @@ namespace MeloStats.Controllers
             var Instrumentalness = 0.0;
             var count = tracks.Count();
            
-            List<string> languages = new List<string>();
             foreach (var track in tracks)
             {
                 var features = await _context.Features
@@ -163,6 +164,26 @@ namespace MeloStats.Controllers
             ViewBag.Tempo = Tempo / count;
             ViewBag.Valence = Valence / count;
             ViewBag.Instrumentalness = Instrumentalness / count;
+
+            tracks = tracks.Distinct().ToList();
+            var languages = new Dictionary<string, int>();
+            foreach (var track in tracks)
+            {
+                if(track.Language == "Unknown" ||  track.Language == "romanization")
+                {
+                    continue;
+                }
+                string language = LanguageCodeHelper.GetLanguageEnglishName(track.Language);
+                if (!languages.ContainsKey(language))
+                {
+                    languages[language] = 1;
+                }
+                else
+                {
+                    languages[language]++;
+                }
+            }
+            ViewBag.Languages = languages;
             return View("Stats");
         }
 
