@@ -32,14 +32,13 @@
 </style>
 
 <div id="stats-container">
-    <div>
-        @foreach (KeyValuePair<string, int> entry in ViewBag.Languages)
-        {
-            <p>
-                @entry.Value songs are in @entry.Key
-            </p>
-        }
+    <div style="max-width: 550px; margin: 0 auto; margin-top:2%;">
+            <canvas id="languagePieChart"></canvas>
+      
     </div>
+    <h6 style="margin-top:2%">
+        Your most listened language is @ViewBag.MaxPair.Key. You listened to @ViewBag.MaxPair.Value songs in @ViewBag.MaxPair.Key, which represent a percent of @ViewBag.MaxPercent% from all of your songs.
+    </h6>
     <div class="slideshow-section">
         <div class="mySlides fade">
             <div class="text">@($"Mean Energy: {ViewBag.Energy:N2}")</div>
@@ -87,6 +86,40 @@
             }
         });
     });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+        var languageData = @Html.Raw(Json.Serialize(ViewBag.Languages));
+        var sortedData = Object.entries(languageData).sort((a, b) => b[1] - a[1]);
+
+        var labels = sortedData.map(entry => entry[0]);
+        var data = sortedData.map(entry => entry[1]);
+        var ctx = document.getElementById('languagePieChart').getContext('2d');
+        var pieChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: labels.map(() => `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, 0.2)`),
+                    borderColor: 'grey',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'left',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Distribution of Song Languages'
+                    }
+                }
+            }
+        });
 </script>
 
 

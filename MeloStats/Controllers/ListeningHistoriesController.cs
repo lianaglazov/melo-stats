@@ -169,7 +169,7 @@ namespace MeloStats.Controllers
             var languages = new Dictionary<string, int>();
             foreach (var track in tracks)
             {
-                if(track.Language == "Unknown" ||  track.Language == "romanization")
+                if(track.Language.Length != 2)
                 {
                     continue;
                 }
@@ -184,6 +184,10 @@ namespace MeloStats.Controllers
                 }
             }
             ViewBag.Languages = languages;
+            
+            ViewBag.MaxPair = languages.Aggregate((l, r) => l.Value > r.Value ? l : r);
+            var total = languages.Values.Sum();
+            ViewBag.MaxPercent = ViewBag.MaxPair.Value * 100 / total;
             return View("Stats");
         }
 
