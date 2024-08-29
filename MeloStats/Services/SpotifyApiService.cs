@@ -35,7 +35,7 @@
             _geniusApiService = geniusApiService;
         }
 
-        private async Task<JObject> FetchWebApi(ApplicationUser user, string endpoint, HttpMethod method, object body = null)
+        public async Task<JObject> FetchWebApi(ApplicationUser user, string endpoint, HttpMethod method, object body = null)
         {
             var client = _httpClientFactory.CreateClient();
             var request = new HttpRequestMessage(method, $"https://api.spotify.com/{endpoint}");
@@ -263,7 +263,7 @@
             return topArtists;
         }
 
-        public async Task<List<ListeningHistory>> GetRecentlyPlayedTracksAsync(ApplicationUser user)
+        public virtual async Task<List<ListeningHistory>> GetRecentlyPlayedTracksAsync(ApplicationUser user)
         {
             var endpoint = "v1/me/player/recently-played?limit=50";
             var response = await FetchWebApi(user, endpoint, HttpMethod.Get);
@@ -421,7 +421,7 @@
             return recentTracks;
         }
 
-        public async Task<Feature> GetTrackFeaturesAsync(int trackId)
+        public virtual async Task<Feature> GetTrackFeaturesAsync(int trackId)
         {
             var accessToken = await _authService.GetAccessTokenAsync();
             var client = new HttpClient();

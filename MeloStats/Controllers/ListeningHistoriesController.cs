@@ -14,13 +14,11 @@ namespace MeloStats.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SpotifyApiService _spotifyApiService;
-        private readonly GeniusApiService _geniusApiService;
         public ListeningHistoriesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, SpotifyApiService spotifyApiService, GeniusApiService geniusApiService) 
         {
             _context = context;
             _userManager = userManager;
             _spotifyApiService = spotifyApiService;
-            _geniusApiService = geniusApiService;
         }
         [Authorize]
         [HttpGet]

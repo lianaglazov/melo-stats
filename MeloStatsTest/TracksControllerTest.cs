@@ -20,7 +20,7 @@ namespace MeloStatsTest
 
         public TracksControllerTest()
         {
-            _spotifyApiServiceMock = new Mock<SpotifyApiService>(null, null, null, null, null);
+            _spotifyApiServiceMock = new Mock<SpotifyApiService>(null, null, null, null, null, null);
             _userManagerMock = new Mock<UserManager<ApplicationUser>>(
                 Mock.Of<IUserStore<ApplicationUser>>(),
                 null, null, null, null, null, null, null, null);
@@ -29,7 +29,7 @@ namespace MeloStatsTest
         }
 
         [Fact]
-        public async Task TopTracks_UserNotLoggedIn_RedirectsToLogin()
+        public async Task TopTracks_UserNotLoggedIn()
         {
             _userManagerMock.Setup(um => um.GetUserAsync(It.IsAny<ClaimsPrincipal>()))
                 .ReturnsAsync((ApplicationUser)null);
@@ -42,7 +42,7 @@ namespace MeloStatsTest
         }
 
         [Fact]
-        public async Task TopTracks_UserLoggedIn_ReturnsViewWithTopTracks()
+        public async Task TopTracks_UserLoggedIn()
         {
             var user = new ApplicationUser { Id = "test-user-id" };
             _userManagerMock.Setup(um => um.GetUserAsync(It.IsAny<ClaimsPrincipal>()))

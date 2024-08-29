@@ -17,7 +17,7 @@
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "hT1ZzEX9FqIKK1pykNXIDITQD_Ife02p0ORH9Q_DEOGGlm17dUHS_ORK4xU806Nf");
         }
 
-        public async Task<string> GetSongLanguageAsync(string songTitle, string artistName)
+        public virtual async Task<string> GetSongLanguageAsync(string songTitle, string artistName)
         {
             try
             {
