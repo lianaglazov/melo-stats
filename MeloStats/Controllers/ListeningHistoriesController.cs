@@ -186,7 +186,7 @@ namespace MeloStats.Controllers
             ViewBag.MaxPair = languages.Aggregate((l, r) => l.Value > r.Value ? l : r);
             var total = languages.Values.Sum();
             ViewBag.MaxPercent = ViewBag.MaxPair.Value * 100 / total;
-            ViewBag.TotalLang = total;
+            ViewBag.TotalLang = languages.Count;
             return View("Stats");
         }
 
