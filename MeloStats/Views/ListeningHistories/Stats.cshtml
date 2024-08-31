@@ -37,7 +37,7 @@
       
     </div>
     <h6 style="margin-top:2%">
-        Your most listened language is @ViewBag.MaxPair.Key. You listened to @ViewBag.MaxPair.Value songs in @ViewBag.MaxPair.Key, which represent a percent of @ViewBag.MaxPercent% from all of your songs.
+        You listened to songs in a total of @ViewBag.TotalLang languages! Your most listened language is @ViewBag.MaxPair.Key. You listened to @ViewBag.MaxPair.Value songs in @ViewBag.MaxPair.Key, which represent a percent of @ViewBag.MaxPercent% from all of your songs.
     </h6>
     <div class="slideshow-section">
         <div class="mySlides fade">
@@ -111,7 +111,7 @@
                 responsive: true,
                 plugins: {
                     legend: {
-                        position: 'left',
+                        position: 'top',
                     },
                     title: {
                         display: true,
