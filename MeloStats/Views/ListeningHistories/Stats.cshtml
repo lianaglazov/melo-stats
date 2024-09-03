@@ -1,92 +1,144 @@
 ﻿<h1 style="text-align:center; margin-top: 5%;">Your Melo Statistics</h1>
-<h3 style="text-align:center; margin-top: 5%;">Scroll down to see what the songs you listen to tell about the type of person you are</h3>
-<style>
-    #stats-container {
-        text-align: center;
-    }
+@{
+    ViewBag.Title = "Your Music Stats";
+    var danceability = ViewBag.Danceability ?? 0.0;
+    var popularity = ViewBag.Popularity ?? 0.0;
+    var tempo = ViewBag.Tempo ?? 0.0;
+    var valence = ViewBag.Valence ?? 0.0;
+    var instrumentalness = ViewBag.Instrumentalness ?? 0.0;
+}
+<h4 style="margin-top:3%;">
+    Your music taste is unique and reflects your diverse interests.
+    You enjoy a mix of tempos, emotional tones, and a blend of popular and niche tracks.
+    Here's a closer look at your listening habits!
+</h4>
+<div style="max-width: 550px; margin: 0 auto; margin-top:2%;">
+        <canvas id="languagePieChart"></canvas>
 
-    .slideshow-section {
-        height: 100vh; 
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        position: relative;
-    }
-
-    .mySlides {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: opacity 1s ease-in-out;
-    }
-
-        .mySlides.fade-in {
-            opacity: 1;
+</div>
+<p style="margin-top:3%; text-align:center;" >
+    You listened to songs in a total of @ViewBag.TotalLang languages! Your most listened language is @ViewBag.MaxPair.Key. You listened to @ViewBag.MaxPair.Value songs in @ViewBag.MaxPair.Key, which represent a percent of @ViewBag.MaxPercent% from all of your songs.
+</p>
+<div style="margin-top:3%; text-align:center;">
+    <h5> You usually listen to songs that are, on average, @popularity.ToString("F2") popular thus the songs you listened to reflect your unique blend of familiar and fresh tunes.</h5>
+    <p>
+        @{
+            if (popularity <= 25)
+            {
+                <span>Your music taste is distinctly unique, filled with tracks and artists that fly under the radar of the mainstream. You might enjoy exploring new sounds, unearthing hidden gems, and supporting indie artists whose work resonates deeply on a personal level. This preference for the less commercial reflects a desire for authenticity and a willingness to venture beyond the typical top 40 playlist.</span>
+            }
+            else if (popularity <= 50)
+            {
+                <span>You have an eclectic mix that blends popular hits with more obscure selections. This indicates a versatile taste that appreciates both the buzz of what's trending and the satisfaction of discovering new, lesser-known music. Your playlist likely has the best of both worlds, making it a hit among friends who enjoy variety and depth in music choices.</span>
+            }
+            else if (popularity <= 75)
+            {
+                <span>You’re tuned into the current music landscape, enjoying tracks that are well-liked and widely recognized. Your playlist reflects a connection to the popular sounds of today, capturing the zeitgeist of the music world. This familiarity offers comfort, a sense of belonging, and an easy way to connect with others through shared hits and common anthems.</span>
+            }
+            else
+            {
+                <span>Your playlist is a collection of the most popular tracks, packed with chart-toppers and songs that define the moment. You love music that’s widely celebrated, often drawing from the latest hits and the most recognized artists. This strong alignment with popular taste reflects your enjoyment of music that not only entertains but also connects you with the broader cultural pulse.</span>
+            }
         }
-
-    .text {
-        color: #333;
-        font-size: 2rem;
-    }
-</style>
-
-<div id="stats-container">
-    <div style="max-width: 550px; margin: 0 auto; margin-top:2%;">
-            <canvas id="languagePieChart"></canvas>
-      
-    </div>
-    <h6 style="margin-top:2%">
-        You listened to songs in a total of @ViewBag.TotalLang languages! Your most listened language is @ViewBag.MaxPair.Key. You listened to @ViewBag.MaxPair.Value songs in @ViewBag.MaxPair.Key, which represent a percent of @ViewBag.MaxPercent% from all of your songs.
-    </h6>
-    <div class="slideshow-section">
-        <div class="mySlides fade">
-            <div class="text">@($"Mean Energy: {ViewBag.Energy:N2}")</div>
-        </div>
-    </div>
-    <div class="slideshow-section">
-        <div class="mySlides fade">
-            <div class="text">@($"Mean Danceability: {ViewBag.Danceability:N2}")</div>
-        </div>
-    </div>
-    <div class="slideshow-section">
-        <div class="mySlides fade">
-            <div class="text">@($"Mean Popularity: {ViewBag.Popularity:N2}")</div>
-        </div>
-    </div>
-    <div class="slideshow-section">
-        <div class="mySlides fade">
-            <div class="text">@($"Mean Tempo: {ViewBag.Tempo:N2}")</div>
-        </div>
-    </div>
-    <div class="slideshow-section">
-        <div class="mySlides fade">
-            <div class="text">@($"Mean Valence: {ViewBag.Valence:N2}")</div>
-        </div>
-    </div>
-    <div class="slideshow-section">
-        <div class="mySlides fade">
-            <div class="text">@($"Mean Instrumentalness: {ViewBag.Instrumentalness:N2}")</div>
-        </div>
-    </div>
+    </p>
+</div>
+<div style="margin-top:2%; text-align:center;">
+    <h5>
+        You scored @danceability.ToString("F2") in danceability, indicating how much you love to groove!
+    </h5>
+    <p>
+        @{
+            if (danceability <= 0.25)
+            {
+                <span>Your taste leans towards tracks that are more reflective and less about the dance floor. These might be acoustic ballads, folk songs, or ambient pieces that prioritize lyrics, storytelling, or atmosphere over a driving beat. This kind of music is perfect for moments of relaxation, introspection, or when you just want to unwind without the urge to dance.</span>
+            }
+            else if (danceability <= 0.50)
+            {
+                <span>You appreciate a good balance between rhythm and melody, enjoying songs that may not be dance anthems but still carry a gentle, pleasing groove. Your playlist likely includes a variety of mid-tempo tracks that can suit multiple occasions—whether it’s background music for a casual gathering or tunes for a peaceful morning routine.</span>
+            }
+            else if (danceability <= 0.75)
+            {
+                <span>Your music collection has a noticeable groove, with many tracks that get your body moving, even if it’s just a subtle tap of the foot. You enjoy a vibrant mix of songs that are upbeat enough to energize a room but still versatile enough to fit any mood, be it driving, working, or socializing with friends.</span>
+            }
+            else
+            {
+                <span>Your playlist is filled with high-energy, dance-centric tracks that are all about getting up and moving. You’re likely the one who gravitates towards the dance floor, or at least feels the rhythm deeply wherever you are. Your love for danceable music means you value energy, fun, and the infectious spirit of rhythm in your listening experience.</span>
+            }
+        }
+    </p>
 </div>
 
-<script>
-    document.addEventListener("scroll", function () {
-        const slides = document.querySelectorAll(".mySlides");
-        const windowHeight = window.innerHeight;
-
-        slides.forEach((slide, index) => {
-            const slidePosition = slide.parentElement.getBoundingClientRect().top;
-
-            if (slidePosition < windowHeight - 100) {
-                slide.classList.add("fade-in");
-            } else {
-                slide.classList.remove("fade-in");
+<div style="margin-top:2%; text-align:center;">
+    <h5>The average tempo of the songs you listened to is @tempo.ToString("F2") BPM, suggesting the overall energy level in your music selection.</h5>
+    <p>
+        @{
+            if (tempo <= 80)
+            {
+                <span>Your preference leans towards slower tempos, which are perfect for unwinding and creating a calming atmosphere. You might enjoy slower ballads, chill beats, or soothing instrumental pieces.</span>
             }
-        });
-    });
-</script>
+            else if (tempo <= 120)
+            {
+                <span>You have a liking for moderate tempos, providing a balanced listening experience that works well in various settings, from working to relaxing.</span>
+            }
+            else if (tempo <= 160)
+            {
+                <span>Your taste includes faster-paced music, which keeps the energy up and the mood lively. These tracks are great for motivation, exercise, or any time you need a boost.</span>
+            }
+            else
+            {
+                <span>Your music is all about high energy and fast beats. Perfect for workouts, parties, or any scenario where you want to keep the adrenaline pumping!</span>
+            }
+        }
+    </p>
+</div>
+
+<div style="margin-top:2%; text-align:center;">
+    <h5>Your valence score is @valence.ToString("F2") indicating the overall emotional tone of your music, ranging from somber to joyful.</h5>
+    <p>
+        @{
+            if (valence <= 0.25)
+            {
+                <span>Your music selections often lean towards the more serious or introspective side of the emotional spectrum. These tracks resonate with deeper, often darker emotions, providing a soundtrack that can be soothing in its complexity. This kind of music is perfect for moments when you’re in a reflective mood or when you need something that matches a more somber atmosphere.</span>
+            }
+            else if (valence <= 0.50)
+            {
+                <span>You enjoy a mix of emotions in your music, reflecting a nuanced balance between happy and sad tones. Your playlist is versatile, with songs that can match a range of moods from slightly melancholic to gently uplifting. This variety offers emotional depth, making your listening experience richly textured and relatable across different moments of life.</span>
+            }
+            else if (valence <= 0.75)
+            {
+                <span>Your playlist leans towards the positive side, with many tracks that bring a sense of joy and lightness. These songs create a cheerful atmosphere, perfect for lifting spirits and creating a feel-good environment. Whether you’re looking to start your day with a smile or unwind with something uplifting, your music choices keep things bright and engaging.</span>
+            }
+            else
+            {
+                <span>Your music is brimming with happiness, positivity, and vibrant energy. With a very high valence score, your playlist is a collection of feel-good tracks that are all about joy, celebration, and good vibes. This selection is perfect for keeping the mood light and upbeat, making every listening session a mini-celebration of life’s brighter moments.</span>
+            }
+        }
+    </p>
+</div>
+
+<div style="margin-top:2%; text-align:center;">
+    <h5>The instrumentalness score, @instrumentalness.ToString("F2") suggests how much you enjoy purely musical experiences without vocals</h5>
+    <p>
+        @{
+            if (instrumentalness <= 0.25)
+            {
+                <span>Your playlist is strongly vocal-centric, with songs that emphasize lyrics and vocal performances. This preference suggests that you enjoy the storytelling aspect of music, where the voice is a crucial component of the experience. Whether it’s the emotional power of a ballad or the catchy hooks of pop, you connect deeply with songs that feature prominent vocals.</span>
+            }
+            else if (instrumentalness <= 0.50)
+            {
+                <span>You enjoy a balanced mix of vocal and instrumental music, reflecting an appreciation for both lyrical content and pure musicality. This middle ground allows for a dynamic listening experience where the voice and the instruments share the spotlight, providing variety and catering to different moods and contexts.</span>
+            }
+            else if (instrumentalness <= 0.75)
+            {
+                <span>Instrumental tracks play a significant role in your listening habits, suggesting a love for music that focuses on melody, harmony, and rhythm without vocal distraction. You might enjoy genres like classical, jazz, electronic, or ambient music, where the instruments tell the story and set the mood in unique and varied ways.</span>
+            }
+            else
+            {
+                <span>Your playlist is dominated by instrumental pieces, emphasizing the beauty of music in its purest form. This high level of instrumentalness suggests a preference for compositions that let the instruments speak for themselves, creating soundscapes that are immersive and often more introspective or meditative.</span>
+            }
+        }
+    </p>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
